@@ -1,0 +1,30 @@
+participants:
+  - el_type: geth
+    cl_type: lighthouse
+    count: 1
+    validator_count: 32
+    el_extra_params:
+      - "--syncmode=full"
+
+network_params:
+  network_id: "12345"
+  fulu_fork_epoch: 18446744073709551615
+  electra_fork_epoch: 0
+
+additional_services:
+  - prometheus_grafana
+
+port_publisher:
+  nat_exit_ip: KURTOSIS_IP_ADDR_PLACEHOLDER
+  el:
+    enabled: true
+    public_port_start: 32000
+  cl:
+    enabled: true
+    public_port_start: 33000
+  vc:
+    enabled: true
+    public_port_start: 34000
+  additional_services:
+    enabled: true
+    public_port_start: 36000

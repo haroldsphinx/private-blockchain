@@ -6,250 +6,119 @@ packages:
   - docker.io
   - curl
   - jq
+  - git
 
 write_files:
-  - path: /opt/zama-pevm-testnet/kurtosis/network_params.yaml
+  - path: /opt/zama/env
     permissions: "0644"
     content: |
-      ${indent(6, network_params)}
+      NODE_NAME=${node_name}
+      NODE_ROLE=${node_role}
+      OWN_EIP=${own_eip}
+      BOOTNODE_EIP=${bootnode_eip}
+      BOOTNODE_PUBKEY=${bootnode_pubkey}
+      BOOTNODE_ENR=${bootnode_enr}
+      MONITORING_IP=${monitoring_private_ip}
+      NETWORK_ID=12345
 
-  - path: /root/.config/kurtosis/kurtosis-config.yml
+  - path: /opt/zama/telescope.yml
     permissions: "0644"
     content: |
-      config-version: 2
-      should-send-metrics: false
-      kurtosis-clusters:
-        docker:
-          type: "docker"
+      server:
+        log_level: info
+      metrics:
+        global:
+          scrape_interval: 15s
+          external_labels:
+            node: ${node_name}
+          remote_write:
+            - url: http://${monitoring_private_ip}:9090/api/v1/write
+        wal_directory: /tmp/telescope
+        configs:
+          - name: blockchain
+            host_filter: false
+            scrape_configs:
+              - job_name: geth
+                metrics_path: /debug/metrics/prometheus
+                static_configs:
+                  - targets: ['localhost:6060']
+              - job_name: lighthouse
+                static_configs:
+                  - targets: ['localhost:5054', 'localhost:5064']
+      logs:
+        positions_directory: /tmp/positions
+        configs:
+          - name: docker
+            clients:
+              - url: http://${monitoring_private_ip}:3100/loki/api/v1/push
+            scrape_configs:
+              - job_name: containers
+                docker_sd_configs:
+                  - host: unix:///var/run/docker.sock
+                relabel_configs:
+                  - source_labels: ['__meta_docker_container_name']
+                    regex: '/(.*)'
+                    target_label: 'container'
+      integrations:
+        node_exporter:
+          enabled: true
+        cadvisor:
+          enabled: true
+          docker_only: true
 
-  - path: /opt/zama-pevm-testnet/observability/docker-compose.yml
-    permissions: "0644"
-    content: |
-      services:
-        prometheus:
-          image: prom/prometheus:latest
-          container_name: prometheus
-          restart: unless-stopped
-          command:
-            - "--config.file=/etc/prometheus/prometheus.yml"
-            - "--web.enable-lifecycle"
-            - "--storage.tsdb.path=/prometheus"
-          ports:
-            - "9090:9090"
-          volumes:
-            - /opt/zama-pevm-testnet/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-            - /opt/zama-pevm-testnet/observability/rules.yml:/etc/prometheus/rules.yml:ro
-          network_mode: host
-
-        alertmanager:
-          image: prom/alertmanager:v0.27.0
-          container_name: alertmanager
-          restart: unless-stopped
-          command:
-            - "--config.file=/etc/alertmanager/alertmanager.yml"
-          ports:
-            - "9093:9093"
-          volumes:
-            - /opt/zama-pevm-testnet/observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-
-        grafana:
-          image: grafana/grafana:10.4.5
-          container_name: grafana
-          restart: unless-stopped
-          environment:
-            - GF_SECURITY_ADMIN_USER=admin
-            - GF_SECURITY_ADMIN_PASSWORD=admin
-          ports:
-            - "3000:3000"
-          volumes:
-            - /opt/zama-pevm-testnet/observability/grafana/provisioning:/etc/grafana/provisioning:ro
-
-        node-exporter:
-          image: prom/node-exporter:latest
-          container_name: node-exporter
-          restart: unless-stopped
-          ports:
-            - "9100:9100"
-          volumes:
-            - /proc:/host/proc:ro
-            - /sys:/host/sys:ro
-            - /:/rootfs:ro
-          command:
-            - '--path.procfs=/host/proc'
-            - '--path.rootfs=/rootfs'
-            - '--path.sysfs=/host/sys'
-
-  - path: /opt/zama-pevm-testnet/observability/prometheus.yml
-    permissions: "0644"
-    content: |
-      global:
-        scrape_interval: 15s
-
-      rule_files:
-        - /etc/prometheus/rules.yml
-
-      alerting:
-        alertmanagers:
-          - static_configs:
-              - targets: ['localhost:9093']
-
-      scrape_configs:
-        - job_name: geth
-          static_configs:
-            - targets: ['localhost:32002']
-
-        - job_name: lighthouse
-          static_configs:
-            - targets: ['localhost:33002']
-
-        - job_name: node-exporter
-          static_configs:
-            - targets: ['localhost:9100']
-
-        - job_name: rpc-probe
-          metrics_path: /probe
-          params:
-            module: [http_2xx]
-          static_configs:
-            - targets: ['http://localhost:32017']
-          relabel_configs:
-            - source_labels: [__address__]
-              target_label: __param_target
-            - target_label: __address__
-              replacement: localhost:9115
-
-  - path: /opt/zama-pevm-testnet/observability/rules.yml
-    permissions: "0644"
-    content: |
-      groups:
-        - name: blockchain
-          rules:
-            - alert: ELNodeDown
-              expr: up{job="geth"} == 0
-              for: 1m
-              labels:
-                severity: critical
-              annotations:
-                summary: "Execution layer node down"
-
-            - alert: CLNodeDown
-              expr: up{job="lighthouse"} == 0
-              for: 1m
-              labels:
-                severity: critical
-              annotations:
-                summary: "Consensus layer node down"
-
-            - alert: NoNewBlocks
-              expr: increase(eth_block_number[2m]) == 0
-              for: 2m
-              labels:
-                severity: warning
-              annotations:
-                summary: "No new blocks in 2 minutes"
-
-  - path: /opt/zama-pevm-testnet/observability/alertmanager.yml
-    permissions: "0644"
-    content: |
-      global:
-        smtp_smarthost: 'smtp.gmail.com:587'
-        smtp_from: 'haroldsphinx@gmail.com'
-        smtp_auth_username: 'haroldsphinx@gmail.com'
-        smtp_auth_password: '${gmail_app_password}'
-
-      route:
-        group_by: ['alertname']
-        group_wait: 30s
-        group_interval: 5m
-        repeat_interval: 4h
-        receiver: email
-
-      receivers:
-        - name: email
-          email_configs:
-            - to: 'haroldsphinx@gmail.com'
-              send_resolved: true
-
-  - path: /opt/zama-pevm-testnet/observability/grafana/provisioning/datasources/datasources.yml
-    permissions: "0644"
-    content: |
-      apiVersion: 1
-      datasources:
-        - name: Prometheus
-          type: prometheus
-          access: proxy
-          url: http://localhost:9090
-          isDefault: true
-
-  - path: /opt/zama-pevm-testnet/observability/grafana/provisioning/dashboards/dashboards.yml
-    permissions: "0644"
-    content: |
-      apiVersion: 1
-      providers:
-        - name: default
-          folder: ''
-          type: file
-          options:
-            path: /etc/grafana/provisioning/dashboards
-
-  - path: /opt/zama-pevm-testnet/bootstrap.sh
+  - path: /opt/zama/bootstrap.sh
     permissions: "0755"
     content: |
       #!/bin/bash
       set -euo pipefail
 
-      export HOME=/root
-      export PATH=$PATH:/usr/local/bin
+      [ -f /opt/zama/.done ] && exit 0
 
-      ENCLAVE_NAME="zama-testnet"
-
-      if [ -f /opt/zama-pevm-testnet/.bootstrap-complete ]; then
-        echo "bootstrap already complete"
-        exit 0
-      fi
-
-      echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | tee /etc/apt/sources.list.d/kurtosis.list
-      apt-get update
-      apt-get install -y kurtosis-cli
-
-      mkdir -p /usr/local/lib/docker/cli-plugins
       curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
         -o /usr/local/lib/docker/cli-plugins/docker-compose
       chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-      kurtosis engine start
+      git clone ${github_repo} /opt/zama/repo
+      cd /opt/zama/repo/docker
 
-      if ! kurtosis enclave inspect "$ENCLAVE_NAME" &>/dev/null; then
-        kurtosis run \
-          --enclave "$ENCLAVE_NAME" \
-          github.com/ethpandaops/ethereum-package \
-          --args-file /opt/zama-pevm-testnet/kurtosis/network_params.yaml
+      cp /opt/zama/telescope.yml telescope.yml
+      ln -sf /opt/zama/repo/genesis genesis
+
+      docker run --rm -v geth-data:/data -v $(pwd)/genesis/el:/genesis:ro \
+        ethereum/client-go:v1.14.12 init --datadir=/data /genesis/genesis.json
+
+      mkdir -p /var/lib/docker/volumes/geth-data/_data/geth
+      cp genesis/nodekeys/${node_name}.key /var/lib/docker/volumes/geth-data/_data/geth/nodekey
+
+      if [ "${node_role}" = "validator" ]; then
+        docker run --rm \
+          -v lighthouse-vc-data:/data \
+          -v $(pwd)/genesis:/genesis:ro \
+          sigp/lighthouse:v5.3.0 \
+          lighthouse account validator import \
+          --network=custom --testnet-dir=/genesis/cl --datadir=/data \
+          --directory=/genesis/validator-keys/${node_name}/keys \
+          --password-file=/genesis/validator-keys/${node_name}/secrets \
+          --reuse-password
+        COMPOSE_PROFILES=validator docker compose --env-file /opt/zama/env up -d
+      else
+        COMPOSE_PROFILES=rpc docker compose --env-file /opt/zama/env up -d
       fi
 
-      cd /opt/zama-pevm-testnet/observability
-      docker compose up -d
+      touch /opt/zama/.done
 
-      sleep 10
-      curl -s -X POST http://localhost:3000/api/gnet/dashboards/14053 -u admin:admin -H "Content-Type: application/json" -d '{"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","value":"Prometheus"}]}' || true
-      curl -s -X POST http://localhost:3000/api/gnet/dashboards/16737 -u admin:admin -H "Content-Type: application/json" -d '{"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","value":"Prometheus"}]}' || true
-
-      touch /opt/zama-pevm-testnet/.bootstrap-complete
-
-  - path: /etc/systemd/system/zama-pevm-testnet.service
+  - path: /etc/systemd/system/zama.service
     permissions: "0644"
     content: |
       [Unit]
-      Description=zama-pevm-testnet bootstrap
+      Description=Zama blockchain node
       After=docker.service
       Requires=docker.service
 
       [Service]
       Type=oneshot
       RemainAfterExit=true
-      Environment=HOME=/root
-      ExecStart=/opt/zama-pevm-testnet/bootstrap.sh
-      StandardOutput=journal
-      StandardError=journal
+      ExecStart=/opt/zama/bootstrap.sh
       TimeoutStartSec=1800
 
       [Install]
@@ -257,13 +126,6 @@ write_files:
 
 runcmd:
   - systemctl daemon-reload
-  - systemctl enable docker
-  - systemctl start docker
-  - usermod -aG docker root
-  - mkdir -p /root/.config/kurtosis
-  - mkdir -p /opt/zama-pevm-testnet/kurtosis
-  - mkdir -p /opt/zama-pevm-testnet/observability/grafana/provisioning/datasources
-  - mkdir -p /opt/zama-pevm-testnet/observability/grafana/provisioning/dashboards
-  - chmod +x /opt/zama-pevm-testnet/bootstrap.sh
-  - systemctl enable zama-pevm-testnet.service
-  - /opt/zama-pevm-testnet/bootstrap.sh
+  - systemctl enable docker && systemctl start docker
+  - mkdir -p /opt/zama /usr/local/lib/docker/cli-plugins
+  - systemctl enable zama && /opt/zama/bootstrap.sh

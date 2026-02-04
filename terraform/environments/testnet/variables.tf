@@ -46,10 +46,24 @@ variable "ssh_allowed_cidrs" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "instance_type" {
-  description = "instance type for the testnet host (needs 4+ vCPU, 16GB+ RAM for minikube + k8s workloads)"
+variable "blockchain_nodes" {
+  description = "map of blockchain nodes to create"
+  type = map(object({
+    instance_type    = string
+    root_volume_size = number
+    role             = string
+  }))
+  default = {
+    node-1 = { instance_type = "t3.xlarge", root_volume_size = 80, role = "validator" }
+    node-2 = { instance_type = "t3.xlarge", root_volume_size = 80, role = "validator" }
+    node-3 = { instance_type = "t3.xlarge", root_volume_size = 80, role = "rpc" }
+  }
+}
+
+variable "monitoring_instance_type" {
+  description = "instance type for the monitoring host"
   type        = string
-  default     = "t3.xlarge"
+  default     = "t3.medium"
 }
 
 variable "ami_id" {
@@ -58,16 +72,10 @@ variable "ami_id" {
   default     = "ami-04b70fa74e45c3917"
 }
 
-variable "associate_public_ip" {
-  description = "whether the instance receives a public IP address"
-  type        = bool
-  default     = true
-}
-
-variable "root_volume_size" {
-  description = "root volume size in GiB"
+variable "monitoring_root_volume_size" {
+  description = "root volume size in GiB for the monitoring host"
   type        = number
-  default     = 80
+  default     = 40
 }
 
 variable "ssh_public_key_path" {
@@ -88,10 +96,16 @@ variable "key_pair_name" {
   default     = "zama"
 }
 
-variable "cloud_init_file" {
-  description = "Path to a cloud-init configuration file."
+variable "blockchain_cloud_init_file" {
+  description = "Path to the blockchain cloud-init configuration file."
   type        = string
   default     = "./files/zama-pevm-testnet-cloud-init.yml.tmpl"
+}
+
+variable "monitoring_cloud_init_file" {
+  description = "Path to the monitoring cloud-init configuration file."
+  type        = string
+  default     = "./files/monitoring-cloud-init.yml.tmpl"
 }
 
 variable "gmail_app_password" {
@@ -105,4 +119,19 @@ variable "tags" {
   description = "Additional tags applied to resources."
   type        = map(string)
   default     = {}
+}
+
+variable "github_repo" {
+  type    = string
+  default = ""
+}
+
+variable "bootnode_pubkey" {
+  type    = string
+  default = ""
+}
+
+variable "bootnode_enr" {
+  type    = string
+  default = ""
 }

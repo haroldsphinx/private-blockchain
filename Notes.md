@@ -2,105 +2,88 @@
 
 ## Why Kurtosis
 
-I went with Kurtosis because the ethereum testing community already converged on it. The ethereum-package by eth-panda-ops team is what most public testnets use so the tooling is battle-tested, writing my own docker-compose or helm chart for geth+lighthouse would have taken longer. Kurtosis handles genesis generation, validator key distribution, bootnode discovery, and service wiring out of the box.
+Went with Kurtosis because the ethereum testing community already converged on it. The ethereum-package by ethpandaops is what most public testnets use — battle-tested tooling. Writing my own docker-compose for geth+lighthouse would take longer and I'd end up reimplementing what Kurtosis already does: genesis generation, validator key distribution, bootnode discovery.
 
-The other thing Kurtosis gives me is backend portability. Same `network_params.yaml` works on Docker and on Kubernetes. I didn't have to maintain two separate deployment configs.
+## Network Topology
 
-## Blockchain Network topology
+Current setup: 3 VMs, each running one blockchain node.
 
-Two validator nodes (32 keys each, 64 total) and one dedicated RPC node with no validator keys. The validators produce and attest blocks, the RPC node syncs from them over P2P and serves external JSON-RPC traffic. this separattion of concerns allows me prevent public RPC traffic from hitting myvalidators directly. The RPC node also proves that P2P sync works, since it has no local state production of its own. (note: I disabled the Fulu fork by setting its epoch to uint64 max)
+- node-1: validator (32 keys), acts as bootnode
+- node-2: validator (32 keys)
+- node-3: RPC node, runs blockscout
+
+All nodes share the same genesis files (committed to repo) and peer via P2P. The RPC node has no validator keys — it just syncs from peers and serves JSON-RPC. This separation keeps public traffic off validators.
+
+## The Multi-VM Evolution
+
+Started with everything on one EC2 instance running a single Kurtosis enclave. Worked fine but nodes couldn't peer across VMs since each enclave generates its own genesis.
+
+Fell into a bit of an improvement rabbit hole here. The fix was straightforward: generate genesis once locally, commit to repo, have each VM clone and use the same genesis. Replaced Kurtosis-on-VM with direct docker-compose (geth + lighthouse). Node-1's nodekey is pre-generated so its enode is deterministic — other nodes can reference it as bootnode.
+
+The `k8s/` directory still has the original single-VM Kurtosis setup. It works for local dev (`./k8s/scripts/setup.sh`) but drifted from the AWS multi-VM architecture. Didn't remove it since it's still useful for quick local testing.
 
 ## Infrastructure
 
-Terraform provisions a VPC + EC2 instance on AWS. Cloud-init bootstraps Docker, installs Kurtosis, deploys the network, and starts the observability stack — all in a single `terraform apply`.
+Terraform provisions:
+- VPC with public subnet
+- 3 blockchain EC2 instances (one per node)
+- 1 monitoring EC2 instance
+- Elastic IPs for all
 
-### The Kubernetes detour
-
-My initial approach was to run Kurtosis on Kubernetes (minikube on EC2). The idea was to show k8s workflows: ArgoCD for GitOps, kube-prometheus-stack for monitoring with automatic pod discovery, nginx ingress for service routing. I had it all wired up — ArgoCD managing the observability stack, Prometheus auto-discovering Kurtosis pods via `kubernetes_sd_configs`, ingress rules for RPC, Grafana, and Blockscout.
-
-The problem was reliability. Bootstrapping minikube inside an EC2 instance via cloud-init introduced a fragile dependency chain:
-
-1. **Kurtosis engine failed to start on the k8s backend.** The logs collector daemon set couldn't schedule pods in time. Kurtosis retries 30 times waiting for a pod to come online, then gives up. The root cause was a race condition — `kurtosis cluster set minikube && kurtosis engine restart` ran before the k8s cluster was fully ready to schedule new workloads. Even after adding explicit `kubectl wait` guards, the daemon set scheduling remained flaky on a resource-constrained single-node cluster.
-
-2. **Resource contention.** Running minikube (its own Docker-in-Docker layer), plus the Kurtosis engine pods, plus 3 geth nodes, 3 lighthouse nodes, Blockscout, ArgoCD, kube-prometheus-stack, and nginx ingress on a single t3.xlarge (4 vCPU, 16GB) led to OOM kills and scheduling failures. The minikube VM alone consumed a chunk of the available resources before any workloads started.
-
-3. **Cloud-init is one-shot.** The bootstrap script runs with `set -euo pipefail`. When Kurtosis engine start failed, the entire bootstrap aborted — no network, no monitoring, no recovery without destroying and recreating the instance. Ansible or a more sophisticated retry mechanism could help, but that adds complexity for a problem that shouldn't exist in the first place.
-
-### The decision
-
-Since the goal is a working testnet from a single `terraform apply`, not a demonstration of running k8s on a single VM, I switched the EC2 deployment to the Docker backend. Kurtosis on Docker is what it was designed for — no intermediate orchestration layer, no daemon set scheduling, no resource overhead from a nested container runtime.
-
-The Kubernetes manifests (ArgoCD apps, ingress rules, the k8s CI workflow) are still in the repo. They work and are tested in CI via `validate-k8s.yml` which runs on minikube inside a GitHub Actions runner (where resources are more predictable). This keeps the k8s deployment path validated without making it the critical path for the actual testnet.
-
-## Why cloud-init instead of Ansible
-
-For a single EC2 instance that needs to go from bare Ubuntu to fully running testnet, cloud-init is simpler. There's no control plane to manage, no inventory file, no SSH key bootstrapping chicken-and-egg problem. The instance provisions itself on first boot
-
-Ansible would make more sense if I had multiple instances to configure, or if I needed to do incremental config changes on running hosts. For this case, one instance, one shot setup, cloud-init is the right tool. It's also natively supported by EC2, no extra dependencies needed
-
-If this were a production setup with a fleet of nodes, I'd use Ansible (or more likely, just run a proper managed k8s cluster and skip the VM provisioning entirely)
+Cloud-init on each blockchain VM:
+1. Clones repo to get genesis files
+2. Initializes geth with shared genesis
+3. Imports validator keys (if validator role)
+4. Starts docker-compose with node-specific env vars
 
 ## Observability
 
-The monitoring stack runs as docker-compose alongside the Kurtosis network. Prometheus, Grafana, Loki, Promtail, AlertManager, Blackbox Exporter, and Node Exporter.
+Monitoring runs on a dedicated instance: Prometheus, Grafana, Loki, AlertManager.
 
-Since Kurtosis assigns dynamic ports to services via its gateway, the setup script extracts the actual port mappings from `kurtosis enclave inspect` and writes them to `observability/.env`. The docker-compose prometheus service uses `sed` to substitute these into the prometheus config template at startup.
+Each blockchain node runs [Telescope](https://github.com/blockopsnetwork/telescope) — an observability agent I built for blockchain infrastructure. It scrapes geth/lighthouse metrics and ships them to Prometheus via remote write. Also collects container logs and pushes to Loki.
 
-Six alert rules: execution node down, consensus node down, peer count low, no new blocks, RPC endpoint down, chain falling behind. These cover the basics: is the network alive, are nodes talking to each other, are blocks being produced, can external clients reach the RPC.
+Alerts: ELNodeDown, CLNodeDown, NoNewBlocks.
 
-The k8s deployment path uses kube-prometheus-stack via ArgoCD with `kubernetes_sd_configs` for automatic pod discovery — no port extraction needed since Prometheus runs inside the same cluster. That config is in `k8s/argocd/apps/observability.yaml`.
+## AI Assistance
 
-## CI / QA
+Used Claude Code (coding agent) to help with parts of this. Being upfront about it.
 
-Two GitHub Actions workflows for network validation:
+Specifically `scripts/generate-genesis.sh` — the key splitting logic and kurtosis file extraction. I reviewed and tested it, but the boilerplate was AI-assisted. The architectural decisions (shared genesis approach, bootnode setup, multi-VM topology) were mine.
 
-- `validate-network.yml` runs Kurtosis on the Docker backend. Faster, good for quick validation.
-- `validate-k8s.yml` runs Kurtosis on minikube inside the runner. Slower, but validates the Kubernetes deployment path.
-
-Both deploy the network using the same `network_params.yaml`, then use the `ethpandaops/assertoor-github-action` for validation. Assertoor is also deployed inside the enclave as an `additional_service`, it runs a suite of checks against the live network (nodes synced, blocks produced, transactions land), the GitHub action polls assertoor's api and turns the results into a CI pass/fail.
-
-On failure, both workflows dump the full enclave logs (and k8s state for the minikube path) as artifacts for debugging.
-
-A third workflow (`infra.yml`) runs `terraform fmt`, `validate`, and `plan` on every push to verify the infrastructure code stays valid. Apply is intentionally skipped in CI — I'd use Atlantis for that in a real setup.
+The terraform modules under `terraform/modules/` are ones I had from previous projects, just reused them here.
 
 ## What I'd do differently for production
 
-**Managed Kubernetes.** The Docker backend works for a testnet, but production would use EKS (or equivalent). Proper node pools, autoscaling, managed control plane. The k8s manifests in this repo are a starting point for that path.
+**Load balancer.** The diagram shows a proxy/LB but I didn't set one up. For production: ALB in front of RPC nodes, health checks on `/health`, sticky sessions disabled since RPC is stateless, WAF rules to rate-limit and block malicious payloads.
 
-**Multiple physical nodes.** Right now everything runs on one instance. A real setup would spread validators across availability zones, separate the RPC tier, and run the monitoring stack on its own infrastructure.
+**Managed Kubernetes.** EKS with proper node pools. The docker-compose approach works for a testnet but doesn't scale.
 
-**DNS and TLS.** Production would use Route53 (or external-dns) with cert-manager for automatic lets encrypts certificates.
+**Multiple AZs.** Spread validators across availability zones.
 
-**Secrets management.** Validator keys, grafana credentials would go through AWS Secrets Manager or Vault, not inline defaults.
+**Secrets management.** Validator keys through AWS Secrets Manager, not committed to repo.
 
-**Persistent storage.** Geth and Lighthouse data should survive restarts. On k8s that means PVCs backed by EBS with a pvc-autoresizer to handle chain growth. On Docker, named volumes with backup.
+**Persistent storage.** EBS-backed volumes for chain data.
 
-**Log aggregation.** Promtail shipping container logs to Loki, queryable through Grafana. The stack is configured for this but needs the Kurtosis container labels to be properly matched in the promtail config.
-
-**Alerting destinations.** Alerts go to AlertManager's default receiver for now. Production would add Slack or PagerDuty with escalation policies.
+**DNS + TLS.** Route53 with cert-manager.
 
 ## Trade-offs
 
-- Kurtosis adds a dependency. If it breaks or changes its API, the deployment breaks. But the alternative (writing custom helm charts for geth+lighthouse) is significantly more work for the same result.
+- Committing genesis to git is fine for a testnet, not for production (keys in repo)
+- Cloud-init is one-shot — failed bootstrap means destroy and recreate
+- Docker backend means no k8s features (rolling updates, self-healing)
+- Pre-generated nodekeys mean deterministic enodes but also mean those keys are in the repo
 
-- Docker backend on EC2 means no k8s features (rolling updates, self-healing pods, service mesh). For a testnet that's rebuilt from scratch, this is fine. For long-lived infrastructure it's not.
-
-- Cloud-init is one-shot. If the bootstrap fails halfway, you have to destroy and recreate the instance. Ansible would let you re-run. For a testnet this is fine; for production I wouldn't do that.
-
-- Single `network_params.yaml` for both CI and deployment means CI runs the full 3-node topology. This makes CI slower but means I'm actually testing what gets deployed.
-
-## Repo layout
+## Repo Layout
 
 ```
-kurtosis/                  network params (single source of truth)
-k8s/
-  scripts/setup.sh         local bootstrap (Docker backend)
-  argocd/                  ArgoCD helm values + app definitions (k8s path)
-  ingress/                 nginx ingress routes (k8s path)
-  zama-pevm-testnet-job/   Kurtosis deployer k8s job
+scripts/                   genesis generation
+docker/                    docker-compose for blockchain nodes
+genesis/                   shared genesis files (generated)
+kurtosis/                  network params for genesis generation
+k8s/                       local dev setup (single-VM, drifted from AWS)
 terraform/
-  environments/testnet/    VPC, EC2, cloud-init template
+  environments/testnet/    multi-VM infrastructure
   modules/compute/         reusable EC2 module
-observability/             docker-compose monitoring stack
-.github/workflows/         CI pipelines
+observability/             local monitoring stack
+.github/workflows/         CI
 ```

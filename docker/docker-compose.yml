@@ -1,0 +1,144 @@
+services:
+  geth:
+    image: ethereum/client-go:v1.14.12
+    container_name: geth
+    restart: unless-stopped
+    command:
+      - --datadir=/data
+      - --networkid=${NETWORK_ID:-12345}
+      - --syncmode=full
+      - --port=30303
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=eth,net,web3,txpool,debug
+      - --http.vhosts=*
+      - --http.corsdomain=*
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=*
+      - --authrpc.jwtsecret=/jwt/jwt.hex
+      - --metrics
+      - --metrics.addr=0.0.0.0
+      - --metrics.port=6060
+      - --nat=extip:${OWN_EIP}
+      - --bootnodes=enode://${BOOTNODE_PUBKEY}@${BOOTNODE_EIP}:30303
+    ports:
+      - "30303:30303"
+      - "30303:30303/udp"
+      - "8545:8545"
+      - "8546:8546"
+      - "8551:8551"
+      - "6060:6060"
+    volumes:
+      - geth-data:/data
+      - ./genesis/el:/genesis:ro
+      - ./genesis/jwt.hex:/jwt/jwt.hex:ro
+
+  lighthouse-bn:
+    image: sigp/lighthouse:v5.3.0
+    container_name: lighthouse-bn
+    restart: unless-stopped
+    depends_on: [geth]
+    command:
+      - lighthouse
+      - beacon_node
+      - --network=custom
+      - --testnet-dir=/genesis/cl
+      - --datadir=/data
+      - --execution-endpoint=http://geth:8551
+      - --execution-jwt=/jwt/jwt.hex
+      - --http
+      - --http-address=0.0.0.0
+      - --http-port=5052
+      - --metrics
+      - --metrics-address=0.0.0.0
+      - --metrics-port=5054
+      - --port=9000
+      - --enr-address=${OWN_EIP}
+      - --enr-udp-port=9000
+      - --enr-tcp-port=9000
+      - --boot-nodes=${BOOTNODE_ENR}
+    ports:
+      - "9000:9000"
+      - "9000:9000/udp"
+      - "5052:5052"
+      - "5054:5054"
+    volumes:
+      - lighthouse-bn-data:/data
+      - ./genesis:/genesis:ro
+      - ./genesis/jwt.hex:/jwt/jwt.hex:ro
+
+  lighthouse-vc:
+    image: sigp/lighthouse:v5.3.0
+    container_name: lighthouse-vc
+    restart: unless-stopped
+    profiles: ["validator"]
+    depends_on: [lighthouse-bn]
+    command:
+      - lighthouse
+      - validator_client
+      - --network=custom
+      - --testnet-dir=/genesis/cl
+      - --datadir=/data
+      - --beacon-nodes=http://lighthouse-bn:5052
+      - --init-slashing-protection
+      - --metrics
+      - --metrics-address=0.0.0.0
+      - --metrics-port=5064
+    ports:
+      - "5064:5064"
+    volumes:
+      - lighthouse-vc-data:/data
+      - ./genesis:/genesis:ro
+
+  blockscout:
+    image: blockscout/blockscout:6.5.0
+    container_name: blockscout
+    restart: unless-stopped
+    profiles: ["rpc"]
+    depends_on: [geth, blockscout-db]
+    environment:
+      - ETHEREUM_JSONRPC_VARIANT=geth
+      - ETHEREUM_JSONRPC_HTTP_URL=http://geth:8545
+      - DATABASE_URL=postgresql://blockscout:blockscout@blockscout-db:5432/blockscout
+      - ECTO_USE_SSL=false
+      - SECRET_KEY_BASE=RMgI4C1HSkxsEjdhtGMfwAHfyT6CKWXOgzCboJflfSm4jeAlic52io05KB6mqzc5
+      - NETWORK=Zama Testnet
+      - CHAIN_ID=${NETWORK_ID:-12345}
+    ports:
+      - "4000:4000"
+
+  blockscout-db:
+    image: postgres:15
+    container_name: blockscout-db
+    restart: unless-stopped
+    profiles: ["rpc"]
+    environment:
+      - POSTGRES_USER=blockscout
+      - POSTGRES_PASSWORD=blockscout
+      - POSTGRES_DB=blockscout
+    volumes:
+      - blockscout-db-data:/var/lib/postgresql/data
+
+  telescope:
+    image: blockopsnetwork/telescope:v0.2.4
+    container_name: telescope
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./telescope.yml:/etc/telescope/telescope.yml:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command: ["--config-file=/etc/telescope/telescope.yml"]
+
+volumes:
+  geth-data:
+  lighthouse-bn-data:
+  lighthouse-vc-data:
+  blockscout-db-data:

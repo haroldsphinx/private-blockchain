@@ -1,0 +1,228 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - docker.io
+  - curl
+  - jq
+
+write_files:
+  - path: /opt/monitoring/docker-compose.yml
+    permissions: "0644"
+    content: |
+      services:
+        prometheus:
+          image: prom/prometheus:latest
+          container_name: prometheus
+          restart: unless-stopped
+          command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--web.enable-lifecycle"
+            - "--web.enable-remote-write-receiver"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.out-of-order-time-window=5m"
+          ports:
+            - "9090:9090"
+          volumes:
+            - /opt/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+            - /opt/monitoring/rules.yml:/etc/prometheus/rules.yml:ro
+
+        loki:
+          image: grafana/loki:2.9.4
+          container_name: loki
+          restart: unless-stopped
+          ports:
+            - "3100:3100"
+          command:
+            - "-config.file=/etc/loki/local-config.yaml"
+
+        alertmanager:
+          image: prom/alertmanager:v0.27.0
+          container_name: alertmanager
+          restart: unless-stopped
+          command:
+            - "--config.file=/etc/alertmanager/alertmanager.yml"
+          ports:
+            - "9093:9093"
+          volumes:
+            - /opt/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+
+        grafana:
+          image: grafana/grafana:10.4.5
+          container_name: grafana
+          restart: unless-stopped
+          environment:
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=admin
+          ports:
+            - "3000:3000"
+          volumes:
+            - /opt/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+
+        node-exporter:
+          image: prom/node-exporter:latest
+          container_name: node-exporter
+          restart: unless-stopped
+          ports:
+            - "9100:9100"
+          volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+          command:
+            - '--path.procfs=/host/proc'
+            - '--path.rootfs=/rootfs'
+            - '--path.sysfs=/host/sys'
+
+  - path: /opt/monitoring/prometheus.yml
+    permissions: "0644"
+    content: |
+      global:
+        scrape_interval: 15s
+
+      rule_files:
+        - /etc/prometheus/rules.yml
+
+      alerting:
+        alertmanagers:
+          - static_configs:
+              - targets: ['localhost:9093']
+
+      scrape_configs:
+        - job_name: node-exporter
+          static_configs:
+            - targets: ['localhost:9100']
+
+  - path: /opt/monitoring/rules.yml
+    permissions: "0644"
+    content: |
+      groups:
+        - name: blockchain
+          rules:
+            - alert: ELNodeDown
+              expr: up{job="geth"} == 0
+              for: 1m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Execution layer node down"
+
+            - alert: CLNodeDown
+              expr: up{job="lighthouse"} == 0
+              for: 1m
+              labels:
+                severity: critical
+              annotations:
+                summary: "Consensus layer node down"
+
+            - alert: NoNewBlocks
+              expr: increase(eth_block_number[2m]) == 0
+              for: 2m
+              labels:
+                severity: warning
+              annotations:
+                summary: "No new blocks in 2 minutes"
+
+  - path: /opt/monitoring/alertmanager.yml
+    permissions: "0644"
+    content: |
+      global:
+        smtp_smarthost: 'smtp.gmail.com:587'
+        smtp_from: 'haroldsphinx@gmail.com'
+        smtp_auth_username: 'haroldsphinx@gmail.com'
+        smtp_auth_password: '${gmail_app_password}'
+
+      route:
+        group_by: ['alertname']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+        receiver: email
+
+      receivers:
+        - name: email
+          email_configs:
+            - to: 'haroldsphinx@gmail.com'
+              send_resolved: true
+
+  - path: /opt/monitoring/grafana/provisioning/datasources/datasources.yml
+    permissions: "0644"
+    content: |
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://localhost:9090
+          isDefault: true
+        - name: Loki
+          type: loki
+          access: proxy
+          url: http://localhost:3100
+
+  - path: /opt/monitoring/grafana/provisioning/dashboards/dashboards.yml
+    permissions: "0644"
+    content: |
+      apiVersion: 1
+      providers:
+        - name: default
+          folder: ''
+          type: file
+          options:
+            path: /etc/grafana/provisioning/dashboards
+
+  - path: /opt/monitoring/bootstrap.sh
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      if [ -f /opt/monitoring/.bootstrap-complete ]; then
+        echo "bootstrap already complete"
+        exit 0
+      fi
+
+      mkdir -p /usr/local/lib/docker/cli-plugins
+      curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
+        -o /usr/local/lib/docker/cli-plugins/docker-compose
+      chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+      cd /opt/monitoring
+      docker compose up -d
+
+      sleep 10
+      # Ethereum Metrics Exporter dashboard (filter by node label)
+      curl -s -X POST http://localhost:3000/api/gnet/dashboards/16277 -u admin:admin -H "Content-Type: application/json" -d '{"inputs":[{"name":"DS_PROMETHEUS","type":"datasource","value":"Prometheus"}]}' || true
+
+      touch /opt/monitoring/.bootstrap-complete
+
+  - path: /etc/systemd/system/monitoring.service
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=Monitoring stack bootstrap
+      After=docker.service
+      Requires=docker.service
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=true
+      ExecStart=/opt/monitoring/bootstrap.sh
+      StandardOutput=journal
+      StandardError=journal
+      TimeoutStartSec=600
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - systemctl daemon-reload
+  - systemctl enable docker
+  - systemctl start docker
+  - usermod -aG docker root
+  - mkdir -p /opt/monitoring/grafana/provisioning/datasources
+  - mkdir -p /opt/monitoring/grafana/provisioning/dashboards
+  - chmod +x /opt/monitoring/bootstrap.sh
+  - systemctl enable monitoring.service
+  - /opt/monitoring/bootstrap.sh

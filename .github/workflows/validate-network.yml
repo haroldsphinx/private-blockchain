@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  TESTNET_IP: "35.169.74.56"
-  RPC_PORT: 32017
+  BLOCKCHAIN_IP: "35.169.74.56"
+  RPC_PORT: 8545
 
 jobs:
   validate:
@@ -23,21 +23,21 @@ jobs:
 
       - name: Verify RPC endpoint responds
         run: |
-          curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}' \
             --connect-timeout 10 --max-time 30
 
       - name: Check block production
         run: |
-          BLOCK1=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          BLOCK1=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | jq -r '.result')
           echo "Block at T+0: $BLOCK1"
 
           sleep 15
 
-          BLOCK2=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          BLOCK2=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | jq -r '.result')
           echo "Block at T+15s: $BLOCK2"
@@ -49,7 +49,7 @@ jobs:
 
       - name: Check peer connectivity
         run: |
-          PEERS=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          PEERS=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' | jq -r '.result')
           PEER_COUNT=$((PEERS))
@@ -61,7 +61,7 @@ jobs:
 
       - name: Check sync status
         run: |
-          SYNCING=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          SYNCING=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' | jq -r '.result')
           if [ "$SYNCING" != "false" ]; then
@@ -71,7 +71,7 @@ jobs:
 
       - name: Check chain ID
         run: |
-          CHAIN_ID=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          CHAIN_ID=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' | jq -r '.result')
           CHAIN_ID_DEC=$((CHAIN_ID))
@@ -84,25 +84,25 @@ jobs:
       - name: Test transaction functionality
         run: |
           # Test eth_call (simulated transaction execution)
-          CALL_RESULT=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          CALL_RESULT=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_call","params":[{"to":"0x0000000000000000000000000000000000000000","data":"0x"},"latest"],"id":1}' | jq -r '.result')
           echo "eth_call result: $CALL_RESULT"
 
           # Test eth_estimateGas
-          GAS=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          GAS=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"to":"0x0000000000000000000000000000000000000000","value":"0x1"}],"id":1}' | jq -r '.result')
           echo "Estimated gas: $GAS"
 
           # Test eth_getTransactionCount
-          NONCE=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          NONCE=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x0000000000000000000000000000000000000000","latest"],"id":1}' | jq -r '.result')
           echo "Transaction count: $NONCE"
 
           # Test eth_getBlockByNumber with transactions
-          BLOCK=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+          BLOCK=$(curl -sf -X POST http://$BLOCKCHAIN_IP:$RPC_PORT \
             -H 'Content-Type: application/json' \
             -d '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",true],"id":1}' | jq -r '.result')
           TX_COUNT=$(echo "$BLOCK" | jq '.transactions | length')
