@@ -1,14 +1,14 @@
 # Terraform
 
+Provisions 3 blockchain VMs + 1 monitoring VM on AWS.
+
 ```sh
 cd terraform/environments/testnet
+cp terraform.tfvars.example terraform.tfvars
+# edit terraform.tfvars
+
 terraform init
-terraform plan -out plan.out
 terraform apply
 ```
 
-Provisions a VPC + EC2 instance (t3.xlarge) that bootstraps minikube, kurtosis, ArgoCD, and the full testnet via cloud-init.
-
-Set an existing AWS key pair name via `key_pair_name` in `terraform.tfvars`, or provide `ssh_public_key_path` to create one.
-
-AWS credentials via environment variables or default credential chain.
+Set `ssh_public_key_path` or `ssh_public_key` in tfvars. Set `bootnode_pubkey` after running `scripts/generate-genesis.sh`.
