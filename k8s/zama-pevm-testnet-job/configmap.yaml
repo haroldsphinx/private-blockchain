@@ -6,13 +6,21 @@ metadata:
 data:
   network_params.yaml: |
     participants:
-      # consensus + validator node
+      - el_type: geth
+        cl_type: lighthouse
+        count: 2
+        validator_count: 32
+        el_extra_params:
+          - "--syncmode=full"
+
       - el_type: geth
         cl_type: lighthouse
         count: 1
-        validator_count: 8
+        validator_count: 0
         el_extra_params:
           - "--syncmode=full"
+          - "--http.vhosts=*"
+          - "--http.corsdomain=*"
 
     network_params:
       network_id: "12345"

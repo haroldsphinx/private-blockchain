@@ -94,6 +94,12 @@ variable "cloud_init_file" {
   default     = "./files/zama-pevm-testnet-cloud-init.yml.tmpl"
 }
 
+variable "repo_url" {
+  description = "Git repository URL cloned on the instance for observability configs."
+  type        = string
+  default     = "https://github.com/haroldsphinx/private-blockchain.git"
+}
+
 variable "tags" {
   description = "Additional tags applied to resources."
   type        = map(string)

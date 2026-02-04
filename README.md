@@ -1,21 +1,18 @@
 # zama-pevm-testnet
 
-Private ethereum testnet running geth (EL) + lighthouse (CL) on Kubernetes via Kurtosis. ArgoCD manages the observability stack. See [Notes.md](Notes.md) for design decisions and trade-offs.
+Private Ethereum testnet running geth (EL) + lighthouse (CL) via [Kurtosis](https://www.kurtosis.com/). Monitoring with Prometheus, Grafana, Loki, and AlertManager. See [Notes.md](Notes.md) for design decisions.
 
-## Deploy locally
+## Local setup
 
-Requires: minikube, kubectl, helm, kurtosis
+Requires: docker, [kurtosis](https://docs.kurtosis.com/install/), docker compose
 
 ```sh
 ./k8s/scripts/setup.sh
 ```
 
-Add to `/etc/hosts`:
-```
-<MINIKUBE_IP> rpc.haroldsphinx.com explorer.haroldsphinx.com grafana.haroldsphinx.com argocd.haroldsphinx.com
-```
+## AWS setup
 
-## Deploy on AWS
+Requires: terraform, AWS credentials configured (`aws configure` or env vars)
 
 ```sh
 cd terraform/environments/testnet
@@ -23,21 +20,23 @@ terraform init
 terraform apply
 ```
 
-Point `*.haroldsphinx.com` to the instance public IP. Cloud-init handles the full bootstrap (~10-15 min on first boot).
+SSH in and watch the bootstrap:
+```sh
+ssh ubuntu@<PUBLIC_IP> 'sudo tail -f /var/log/cloud-init-output.log'
+```
 
 ## Services
 
-| URL | What |
+| Endpoint | What |
 | --- | --- |
-| `http://rpc.haroldsphinx.com` | geth JSON-RPC (dedicated RPC node, no validators) |
-| `http://explorer.haroldsphinx.com` | Blockscout |
-| `http://grafana.haroldsphinx.com` | Grafana (admin/admin) |
-| `http://argocd.haroldsphinx.com` | ArgoCD (admin / see bootstrap output) |
+| `http://<IP>:8545` | geth JSON-RPC (dedicated RPC node) |
+| `http://<IP>:3000` | Grafana (admin/admin) |
+| `http://<IP>:9090` | Prometheus |
 
-Direct RPC fallback: `http://<IP>:8545`
+Locally, the RPC port is dynamically assigned by Kurtosis — `setup.sh` prints it at the end.
 
 ```sh
-curl -X POST http://rpc.haroldsphinx.com \
+curl -X POST http://<IP>:8545 \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
@@ -52,9 +51,11 @@ Defined in `kurtosis/network_params.yaml`:
 
 ## Monitoring
 
-kube-prometheus-stack via ArgoCD. Prometheus auto-discovers kurtosis pods on `kt-*` namespaces.
+Prometheus + Grafana + Loki + AlertManager via docker-compose in `observability/`.
 
-Alerts: ELNodeDown, CLNodeDown, PeerCountLow, NoNewBlocks.
+Alerts: ELNodeDown, CLNodeDown, PeerCountLow, NoNewBlocks, RPCDown, ChainNotSynced.
+
+The setup script extracts Kurtosis-assigned ports and writes them to `observability/.env` so Prometheus can scrape the nodes.
 
 ## CI
 
@@ -62,12 +63,20 @@ Alerts: ELNodeDown, CLNodeDown, PeerCountLow, NoNewBlocks.
 | --- | --- | --- |
 | `validate-network.yml` | Docker | 45 min |
 | `validate-k8s.yml` | Minikube | 60 min |
+| `infra.yml` | Terraform | plan only |
 
-Both deploy the network and run Assertoor validation. Enclave logs uploaded as artifacts on failure.
+Both network workflows deploy the chain and run Assertoor validation. Enclave logs are uploaded as artifacts on failure.
 
 ## Teardown
 
+Local:
 ```sh
+cd observability && docker compose down
 kurtosis enclave rm -f zama-testnet
-minikube delete
+```
+
+AWS:
+```sh
+cd terraform/environments/testnet
+terraform destroy
 ```

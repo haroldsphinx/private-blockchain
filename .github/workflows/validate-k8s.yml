@@ -38,7 +38,21 @@ jobs:
 
       - name: Configure Kurtosis for Kubernetes
         run: |
-          kurtosis cluster set kube
+          mkdir -p ~/.config/kurtosis
+          cat > ~/.config/kurtosis/kurtosis-config.yml << 'KURTOSIS_EOF'
+          config-version: 2
+          should-send-metrics: false
+          kurtosis-clusters:
+            docker:
+              type: "docker"
+            minikube:
+              type: "kubernetes"
+              config:
+                kubernetes-cluster-name: "minikube"
+                storage-class: "standard"
+                enclave-size-in-megabytes: 10
+          KURTOSIS_EOF
+          kurtosis cluster set minikube
           kurtosis engine restart
 
       - name: Start Kurtosis gateway

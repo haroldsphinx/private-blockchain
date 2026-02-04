@@ -22,7 +22,6 @@ scrape_configs:
       - targets:
           - node-exporter:9100
 
-  # Geth execution layer metrics
   - job_name: geth
     metrics_path: /debug/metrics/prometheus
     static_configs:
@@ -33,7 +32,6 @@ scrape_configs:
           layer: execution
           client: geth
 
-  # Lighthouse consensus layer metrics
   - job_name: lighthouse
     static_configs:
       - targets:
@@ -43,7 +41,6 @@ scrape_configs:
           layer: consensus
           client: lighthouse
 
-  # RPC health via blackbox exporter
   - job_name: zama-pevm-testnet-health
     metrics_path: /probe
     params:

@@ -4,7 +4,7 @@
 
 I went with Kurtosis because the ethereum testing community already converged on it. The ethereum-package by eth-panda-ops team is what most public testnets use so the tooling is battle-tested, writing my own docker-compose or helm chart for geth+lighthouse would have taken longer. Kurtosis handles genesis generation, validator key distribution, bootnode discovery, and service wiring out of the box.
 
-The other thing Kurtosis gives me is backend portability. Same `network_params.yaml` works on Docker and on Kubernetes (for anything resembling production). I didn't have to maintain two separate deployment configs.
+The other thing Kurtosis gives me is backend portability. Same `network_params.yaml` works on Docker and on Kubernetes. I didn't have to maintain two separate deployment configs.
 
 ## Blockchain Network topology
 
@@ -12,9 +12,25 @@ Two validator nodes (32 keys each, 64 total) and one dedicated RPC node with no 
 
 ## Infrastructure
 
-Terraform provisions a VPC + EC2 instance on AWS. The instance runs minikube, which runs everything else. I know minikube on EC2 sounds weird, I decided to use that to show my k8s workflows, Ideally I would have just used docker on vm and K8s only for production workload. for my setup, this also means the local dev setup and the cloud setup are the same stack. setup.sh and cloud-init run the same sequence: start minikube, install ArgoCD, deploy via Kurtosis, apply ingress. One network_params.yaml drives both.
+Terraform provisions a VPC + EC2 instance on AWS. Cloud-init bootstraps Docker, installs Kurtosis, deploys the network, and starts the observability stack — all in a single `terraform apply`.
 
-The cloud-init template uses terraform template engine to inject the actual repo config files (network params, ArgoCD values, observability app, ingress manifests) at plan time. This prevents copying and pasting configs into the template, change a file in the repo and both deployment paths pick it up.
+### The Kubernetes detour
+
+My initial approach was to run Kurtosis on Kubernetes (minikube on EC2). The idea was to show k8s workflows: ArgoCD for GitOps, kube-prometheus-stack for monitoring with automatic pod discovery, nginx ingress for service routing. I had it all wired up — ArgoCD managing the observability stack, Prometheus auto-discovering Kurtosis pods via `kubernetes_sd_configs`, ingress rules for RPC, Grafana, and Blockscout.
+
+The problem was reliability. Bootstrapping minikube inside an EC2 instance via cloud-init introduced a fragile dependency chain:
+
+1. **Kurtosis engine failed to start on the k8s backend.** The logs collector daemon set couldn't schedule pods in time. Kurtosis retries 30 times waiting for a pod to come online, then gives up. The root cause was a race condition — `kurtosis cluster set minikube && kurtosis engine restart` ran before the k8s cluster was fully ready to schedule new workloads. Even after adding explicit `kubectl wait` guards, the daemon set scheduling remained flaky on a resource-constrained single-node cluster.
+
+2. **Resource contention.** Running minikube (its own Docker-in-Docker layer), plus the Kurtosis engine pods, plus 3 geth nodes, 3 lighthouse nodes, Blockscout, ArgoCD, kube-prometheus-stack, and nginx ingress on a single t3.xlarge (4 vCPU, 16GB) led to OOM kills and scheduling failures. The minikube VM alone consumed a chunk of the available resources before any workloads started.
+
+3. **Cloud-init is one-shot.** The bootstrap script runs with `set -euo pipefail`. When Kurtosis engine start failed, the entire bootstrap aborted — no network, no monitoring, no recovery without destroying and recreating the instance. Ansible or a more sophisticated retry mechanism could help, but that adds complexity for a problem that shouldn't exist in the first place.
+
+### The decision
+
+Since the goal is a working testnet from a single `terraform apply`, not a demonstration of running k8s on a single VM, I switched the EC2 deployment to the Docker backend. Kurtosis on Docker is what it was designed for — no intermediate orchestration layer, no daemon set scheduling, no resource overhead from a nested container runtime.
+
+The Kubernetes manifests (ArgoCD apps, ingress rules, the k8s CI workflow) are still in the repo. They work and are tested in CI via `validate-k8s.yml` which runs on minikube inside a GitHub Actions runner (where resources are more predictable). This keeps the k8s deployment path validated without making it the critical path for the actual testnet.
 
 ## Why cloud-init instead of Ansible
 
@@ -26,46 +42,50 @@ If this were a production setup with a fleet of nodes, I'd use Ansible (or more 
 
 ## Observability
 
-The monitoring stack is kube-prometheus-stack deployed via ArgoCD. Prometheus discovers kurtosis pods using `kubernetes_sd_configs` on `kt-*` namespaces, no need for hardcoding endpoints or port numbers. When Kurtosis creates or recreates the enclave, Prometheus picks up the new pods automatically.
+The monitoring stack runs as docker-compose alongside the Kurtosis network. Prometheus, Grafana, Loki, Promtail, AlertManager, Blackbox Exporter, and Node Exporter.
 
-Four alert rules: execution node down, consensus node down, peer count low, no new blocks. These cover the basics for monitoring and alering if the networks are alive, are nodes talking to each other, are blocks being produced.
+Since Kurtosis assigns dynamic ports to services via its gateway, the setup script extracts the actual port mappings from `kurtosis enclave inspect` and writes them to `observability/.env`. The docker-compose prometheus service uses `sed` to substitute these into the prometheus config template at startup.
 
-I started with a standalone docker-compose monitoring stack (the `observability/` directory) during early development when I was running Kurtosis on the Docker backend. Once I moved to Kubernetes, it made more sense to use kube-prometheus-stack managed by ArgoCD. The standalone configs are still in the repo for reference
+Six alert rules: execution node down, consensus node down, peer count low, no new blocks, RPC endpoint down, chain falling behind. These cover the basics: is the network alive, are nodes talking to each other, are blocks being produced, can external clients reach the RPC.
+
+The k8s deployment path uses kube-prometheus-stack via ArgoCD with `kubernetes_sd_configs` for automatic pod discovery — no port extraction needed since Prometheus runs inside the same cluster. That config is in `k8s/argocd/apps/observability.yaml`.
 
 ## CI / QA
 
-Two GitHub Actions workflows:
+Two GitHub Actions workflows for network validation:
 
 - `validate-network.yml` runs Kurtosis on the Docker backend. Faster, good for quick validation.
-- `validate-k8s.yml` runs Kurtosis on minikube inside the runner. Slower, but validates the actual Kubernetes deployment path
+- `validate-k8s.yml` runs Kurtosis on minikube inside the runner. Slower, but validates the Kubernetes deployment path.
 
-Both deploy the network using the same `network_params.yaml`, then use the `ethpandaops/assertoor-github-action` for validation. Assertoor is also deployed inside the enclave as an `additional_service`,  it runs a suite of checks against the live network (nodes synced, blocks produced, transactions land), the gitHub action polls assertoor's api and turns the results into a CI pass/fail.
+Both deploy the network using the same `network_params.yaml`, then use the `ethpandaops/assertoor-github-action` for validation. Assertoor is also deployed inside the enclave as an `additional_service`, it runs a suite of checks against the live network (nodes synced, blocks produced, transactions land), the GitHub action polls assertoor's api and turns the results into a CI pass/fail.
 
-On failure, both workflows dump the full enclave logs and k8s state as artifacts for debugging.
+On failure, both workflows dump the full enclave logs (and k8s state for the minikube path) as artifacts for debugging.
+
+A third workflow (`infra.yml`) runs `terraform fmt`, `validate`, and `plan` on every push to verify the infrastructure code stays valid. Apply is intentionally skipped in CI — I'd use Atlantis for that in a real setup.
 
 ## What I'd do differently for production
 
-**Managed Kubernetes.** Running minikube on EC2 works for a testnet, but production would use EKS (or equivalent). Proper node pools, autoscaling, managed control plane.
+**Managed Kubernetes.** The Docker backend works for a testnet, but production would use EKS (or equivalent). Proper node pools, autoscaling, managed control plane. The k8s manifests in this repo are a starting point for that path.
 
 **Multiple physical nodes.** Right now everything runs on one instance. A real setup would spread validators across availability zones, separate the RPC tier, and run the monitoring stack on its own infrastructure.
 
-**DNS and TLS.** I'm using `*.haroldsphinx.com` with manual DNS pointing. Production would use Route53 (or external-dns) with cert-manager for automatic lets encrypts certificates
+**DNS and TLS.** Production would use Route53 (or external-dns) with cert-manager for automatic lets encrypts certificates.
 
-**Secrets management.** validator keys, grafana and argocd credentials would go through AWS Secrets Manager or Vault, not inline defaults
+**Secrets management.** Validator keys, grafana credentials would go through AWS Secrets Manager or Vault, not inline defaults.
 
-**Persistent storage.** Geth and Lighthouse data should survive pod restarts. That means PVCs backed by EBS or similar. Right now if the enclave is destroyed, the chain state is gone. I would also setup something like a pvc-autoresizer to autogrow my pvc and ensure that I don't have to manually intervene when the state growth is reaching max disk capacity
+**Persistent storage.** Geth and Lighthouse data should survive restarts. On k8s that means PVCs backed by EBS with a pvc-autoresizer to handle chain growth. On Docker, named volumes with backup.
 
-**Log aggregation.** Promtail shipping logs to Loki, queryable through Grafana. Right now logs are only in pod stdout and the kurtosis enclave dump.
+**Log aggregation.** Promtail shipping container logs to Loki, queryable through Grafana. The stack is configured for this but needs the Kurtosis container labels to be properly matched in the promtail config.
 
-**Alerting destinations.** Alerts route to email for now. Production would add Slack or PagerDuty as additional receivers with escalation policies.
+**Alerting destinations.** Alerts go to AlertManager's default receiver for now. Production would add Slack or PagerDuty with escalation policies.
 
 ## Trade-offs
 
 - Kurtosis adds a dependency. If it breaks or changes its API, the deployment breaks. But the alternative (writing custom helm charts for geth+lighthouse) is significantly more work for the same result.
 
-- Minikube on EC2 is an extra layer of abstraction. But it buys me dev/prod parity with zero additional config files.
+- Docker backend on EC2 means no k8s features (rolling updates, self-healing pods, service mesh). For a testnet that's rebuilt from scratch, this is fine. For long-lived infrastructure it's not.
 
-- Cloud-init is one-shot. If the bootstrap fails halfway, you have to destroy and recreate the instance. Ansible would let you re-run. For a testnet this is fine; for production I wouldnt do that.
+- Cloud-init is one-shot. If the bootstrap fails halfway, you have to destroy and recreate the instance. Ansible would let you re-run. For a testnet this is fine; for production I wouldn't do that.
 
 - Single `network_params.yaml` for both CI and deployment means CI runs the full 3-node topology. This makes CI slower but means I'm actually testing what gets deployed.
 
@@ -74,12 +94,13 @@ On failure, both workflows dump the full enclave logs and k8s state as artifacts
 ```
 kurtosis/                  network params (single source of truth)
 k8s/
-  scripts/setup.sh         local minikube bootstrap
-  argocd/                  ArgoCD helm values + app definitions
-  ingress/                 nginx ingress routes
+  scripts/setup.sh         local bootstrap (Docker backend)
+  argocd/                  ArgoCD helm values + app definitions (k8s path)
+  ingress/                 nginx ingress routes (k8s path)
+  zama-pevm-testnet-job/   Kurtosis deployer k8s job
 terraform/
   environments/testnet/    VPC, EC2, cloud-init template
   modules/compute/         reusable EC2 module
-observability/             standalone docker-compose stack (legacy/dev)
+observability/             docker-compose monitoring stack
 .github/workflows/         CI pipelines
 ```

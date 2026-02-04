@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/haroldsphinx/zama.git
+    repoURL: https://github.com/haroldsphinx/private-blockchain.git
     targetRevision: main
     path: k8s/zama-pevm-testnet-job
 

@@ -22,7 +22,7 @@ jobs:
           terraform_version: "1.6.6"
 
       - name: Terraform fmt check
-        working-directory: terraform/environments/dev
+        working-directory: terraform/environments/testnet
         run: terraform fmt -check -recursive
 
       - name: Authenticate to AWS
@@ -33,19 +33,19 @@ jobs:
             aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Terraform init 
-        working-directory: terraform/environments/dev
+        working-directory: terraform/environments/testnet
         run: terraform init -backend=false
 
       - name: Terraform validate
-        working-directory: terraform/environments/dev
+        working-directory: terraform/environments/testnet
         run: terraform validate
 
       - name: Terraform plan
-        working-directory: terraform/environments/dev
+        working-directory: terraform/environments/testnet
         run: terraform plan -out plan.out
 
       - name: Terraform show plan
-        working-directory: terraform/environments/dev
+        working-directory: terraform/environments/testnet
         run: terraform show plan.out > plan.txt
 
-      # Intentionally skipping terraform apply here cos I would rather do this with Atlantis where chnages are much easier to review and approve
+      # Intentionally skipping terraform apply here cos I would rather do this with Atlantis where changes are much easier to review and approve

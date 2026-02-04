@@ -1,8 +1,9 @@
 route:
-  receiver: log-receiver
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: default
 
 receivers:
-  - name: log-receiver
-    webhook_configs:
-      - url: http://alert-receiver:8080/
-        send_resolved: true
+  - name: default

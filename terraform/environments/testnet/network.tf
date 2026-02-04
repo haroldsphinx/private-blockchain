@@ -73,18 +73,26 @@ resource "aws_security_group" "testnet" {
   }
 
   ingress {
-    description = "HTTP (nginx ingress)"
+    description = "EL JSON-RPC"
     protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8545
+    to_port     = 8545
     cidr_blocks = var.allowed_ingress_cidrs
   }
 
   ingress {
-    description = "EL JSON-RPC (direct fallback)"
+    description = "Grafana"
     protocol    = "tcp"
-    from_port   = 8545
-    to_port     = 8545
+    from_port   = 3000
+    to_port     = 3000
+    cidr_blocks = var.allowed_ingress_cidrs
+  }
+
+  ingress {
+    description = "Prometheus"
+    protocol    = "tcp"
+    from_port   = 9090
+    to_port     = 9090
     cidr_blocks = var.allowed_ingress_cidrs
   }
 

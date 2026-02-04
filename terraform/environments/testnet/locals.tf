@@ -16,9 +16,7 @@ locals {
   )
 
   cloud_init_raw = trimspace(var.cloud_init_file) != "" ? templatefile(var.cloud_init_file, {
-    network_params    = trimspace(file("${local.repo_root}/kurtosis/network_params.yaml"))
-    argocd_values     = trimspace(file("${local.repo_root}/k8s/argocd/argocd-values.yaml"))
-    observability_app = trimspace(file("${local.repo_root}/k8s/argocd/apps/observability.yaml"))
-    ingress_manifest  = trimspace(file("${local.repo_root}/k8s/ingress/ingress.yaml"))
+    network_params = trimspace(file("${local.repo_root}/kurtosis/network_params.yaml"))
+    repo_url       = var.repo_url
   }) : ""
 }
