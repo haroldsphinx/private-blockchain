@@ -85,7 +85,7 @@ write_files:
       ln -sf /opt/zama/repo/genesis genesis
 
       docker run --rm -v geth-data:/data -v $(pwd)/genesis/el:/genesis:ro \
-        ethereum/client-go:v1.14.12 init --datadir=/data /genesis/genesis.json
+        ethereum/client-go:v1.15.2 init --datadir=/data /genesis/genesis.json
 
       mkdir -p /var/lib/docker/volumes/geth-data/_data/geth
       cp genesis/nodekeys/${node_name}.key /var/lib/docker/volumes/geth-data/_data/geth/nodekey
@@ -94,7 +94,7 @@ write_files:
         docker run --rm \
           -v lighthouse-vc-data:/data \
           -v $(pwd)/genesis:/genesis:ro \
-          sigp/lighthouse:v5.3.0 \
+          sigp/lighthouse:v6.0.1 \
           lighthouse account validator import \
           --network=custom --testnet-dir=/genesis/cl --datadir=/data \
           --directory=/genesis/validator-keys/${node_name}/keys \
