@@ -1,0 +1,60 @@
+name: zama-pevm-testnet Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Deploy & Validate zama-pevm-testnet
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Kurtosis
+        run: |
+          echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | sudo tee /etc/apt/sources.list.d/kurtosis.list
+          sudo apt-get update
+          sudo apt-get install -y kurtosis-cli
+
+      - name: Start Kurtosis engine
+        run: kurtosis engine start
+
+      - name: Deploy zama-pevm-testnet
+        run: |
+          kurtosis run \
+            --enclave zama-testnet \
+            github.com/ethpandaops/ethereum-package \
+            --args-file kurtosis/network_params.yaml
+
+      - name: Display enclave services
+        run: kurtosis enclave inspect zama-testnet
+
+      - name: Run Assertoor network validation
+        uses: ethpandaops/assertoor-github-action@v1
+        with:
+          kurtosis_enclave_name: zama-testnet
+
+      - name: Dump enclave logs on failure
+        if: failure()
+        run: |
+          mkdir -p /tmp/enclave-dump
+          kurtosis enclave dump zama-testnet /tmp/enclave-dump
+
+      - name: Upload enclave logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: enclave-logs
+          path: /tmp/enclave-dump
+          retention-days: 7
+
+      - name: Cleanup
+        if: always()
+        run: kurtosis enclave rm -f zama-testnet || true

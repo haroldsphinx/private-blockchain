@@ -1,0 +1,82 @@
+name: zama-pevm-testnet Validation (Kubernetes)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "k8s/**"
+      - "kurtosis/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "k8s/**"
+      - "kurtosis/**"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Deploy & Validate on Kubernetes
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          cpus: max
+          memory: max
+          driver: docker
+
+      - name: Install Kurtosis
+        run: |
+          echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | sudo tee /etc/apt/sources.list.d/kurtosis.list
+          sudo apt-get update
+          sudo apt-get install -y kurtosis-cli
+
+      - name: Configure Kurtosis for Kubernetes
+        run: |
+          kurtosis cluster set kube
+          kurtosis engine restart
+
+      - name: Start Kurtosis gateway
+        run: |
+          kurtosis gateway &
+          sleep 5
+
+      - name: Deploy zama-pevm-testnet
+        run: |
+          kurtosis run \
+            --enclave zama-testnet \
+            github.com/ethpandaops/ethereum-package \
+            --args-file kurtosis/network_params.yaml
+
+      - name: Display enclave services
+        run: kurtosis enclave inspect zama-testnet
+
+      - name: Run Assertoor network validation
+        uses: ethpandaops/assertoor-github-action@v1
+        with:
+          kurtosis_enclave_name: zama-testnet
+
+      - name: Dump enclave logs on failure
+        if: failure()
+        run: |
+          mkdir -p /tmp/enclave-dump
+          kurtosis enclave dump zama-testnet /tmp/enclave-dump
+          kubectl get pods --all-namespaces -o wide > /tmp/enclave-dump/k8s-pods.txt
+          kubectl get events --all-namespaces --sort-by='.lastTimestamp' > /tmp/enclave-dump/k8s-events.txt
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k8s-enclave-logs
+          path: /tmp/enclave-dump
+          retention-days: 7
+
+      - name: Cleanup
+        if: always()
+        run: kurtosis enclave rm -f zama-testnet || true

@@ -1,0 +1,130 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: observability
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "65.*"
+    helm:
+      valueFiles: []
+      values: |
+        grafana:
+          adminUser: admin
+          adminPassword: admin
+          dashboardProviders:
+            dashboardproviders.yaml:
+              apiVersion: 1
+              providers:
+                - name: zama-pevm-testnet
+                  orgId: 1
+                  folder: zama-pevm-testnet
+                  type: file
+                  disableDeletion: false
+                  options:
+                    path: /var/lib/grafana/dashboards/zama-pevm-testnet
+
+        prometheus:
+          prometheusSpec:
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            additionalScrapeConfigs:
+              - job_name: kurtosis-geth
+                metrics_path: /debug/metrics/prometheus
+                kubernetes_sd_configs:
+                  - role: pod
+                    namespaces:
+                      names: ["kt-*"]
+                relabel_configs:
+                  - source_labels: [__meta_kubernetes_pod_label_ethereum_package_client]
+                    regex: geth
+                    action: keep
+                  - source_labels: [__meta_kubernetes_pod_container_port_name]
+                    regex: metrics
+                    action: keep
+                  - source_labels: [__meta_kubernetes_pod_name]
+                    target_label: instance
+
+              - job_name: kurtosis-lighthouse
+                kubernetes_sd_configs:
+                  - role: pod
+                    namespaces:
+                      names: ["kt-*"]
+                relabel_configs:
+                  - source_labels: [__meta_kubernetes_pod_label_ethereum_package_client]
+                    regex: lighthouse
+                    action: keep
+                  - source_labels: [__meta_kubernetes_pod_container_port_name]
+                    regex: metrics
+                    action: keep
+                  - source_labels: [__meta_kubernetes_pod_name]
+                    target_label: instance
+
+        additionalPrometheusRulesMap:
+          zama-pevm-testnet-alerts:
+            groups:
+              - name: zama-pevm-testnet-alerts
+                rules:
+                  - alert: ELNodeDown
+                    expr: up{job="kurtosis-geth"} == 0
+                    for: 1m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Execution layer node is down"
+                      description: "{{ $labels.instance }} unreachable for 1 minute."
+
+                  - alert: CLNodeDown
+                    expr: up{job="kurtosis-lighthouse"} == 0
+                    for: 1m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Consensus layer node is down"
+                      description: "{{ $labels.instance }} unreachable for 1 minute."
+
+                  - alert: PeerCountLow
+                    expr: p2p_peers < 1
+                    for: 2m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "Peer count is low"
+                      description: "{{ $labels.instance }} has fewer than 1 peer for 2 minutes."
+
+                  - alert: NoNewBlocks
+                    expr: increase(chain_head_block[2m]) == 0
+                    for: 2m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "No new blocks produced"
+                      description: "No new blocks in the last 2 minutes."
+
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 100m
+                memory: 128Mi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

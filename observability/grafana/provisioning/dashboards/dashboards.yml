@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: zama-pevm-testnet
+    orgId: 1
+    folder: zama-pevm-testnet
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

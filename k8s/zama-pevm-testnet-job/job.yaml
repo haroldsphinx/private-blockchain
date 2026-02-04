@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deploy-zama-pevm-testnet
+  namespace: zama-pevm-testnet
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: zama-pevm-testnet-deployer
+    spec:
+      serviceAccountName: kurtosis-deployer
+      restartPolicy: Never
+      containers:
+        - name: kurtosis
+          image: kurtosistech/kurtosis-cli:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "=== Starting Kurtosis engine ==="
+              kurtosis engine start
+
+              echo "=== Deploying zama-pevm-testnet network ==="
+              kurtosis run \
+                --enclave zama-testnet \
+                github.com/ethpandaops/ethereum-package \
+                --args-file /config/network_params.yaml
+
+              echo "=== Enclave deployed ==="
+              kurtosis enclave inspect zama-testnet
+          volumeMounts:
+            - name: network-params
+              mountPath: /config
+              readOnly: true
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: network-params
+          configMap:
+            name: network-params

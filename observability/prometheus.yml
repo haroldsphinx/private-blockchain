@@ -1,0 +1,60 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+rule_files:
+  - /etc/prometheus/rules.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - prometheus:9090
+
+  - job_name: node-exporter
+    static_configs:
+      - targets:
+          - node-exporter:9100
+
+  # Geth execution layer metrics
+  - job_name: geth
+    metrics_path: /debug/metrics/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:__EL_METRICS_PORT__
+        labels:
+          node: validator
+          layer: execution
+          client: geth
+
+  # Lighthouse consensus layer metrics
+  - job_name: lighthouse
+    static_configs:
+      - targets:
+          - host.docker.internal:__CL_METRICS_PORT__
+        labels:
+          node: validator
+          layer: consensus
+          client: lighthouse
+
+  # RPC health via blackbox exporter
+  - job_name: zama-pevm-testnet-health
+    metrics_path: /probe
+    params:
+      module: [eth_jsonrpc]
+    static_configs:
+      - targets:
+          - http://host.docker.internal:__EL_RPC_PORT__
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

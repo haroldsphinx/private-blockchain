@@ -1,0 +1,8 @@
+route:
+  receiver: log-receiver
+
+receivers:
+  - name: log-receiver
+    webhook_configs:
+      - url: http://alert-receiver:8080/
+        send_resolved: true

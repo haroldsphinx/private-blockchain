@@ -1,0 +1,10 @@
+region                = "us-east-1"
+project_name          = "zama-api"
+environment           = "dev"
+allowed_ingress_cidrs = ["0.0.0.0/0"]
+instance_type         = "m1.small"
+ami_id                = "ami-04b70fa74e45c3917"
+root_volume_size      = 20
+ssh_public_key_path   = ""
+cloud_init_file       = "./files/zama-cloud-init.yml.tmpl"
+gateway_api_key       = "example-secret"

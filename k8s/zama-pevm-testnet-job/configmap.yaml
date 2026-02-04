@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: network-params
+  namespace: zama-pevm-testnet
+data:
+  network_params.yaml: |
+    participants:
+      # consensus + validator node
+      - el_type: geth
+        cl_type: lighthouse
+        count: 1
+        validator_count: 8
+        el_extra_params:
+          - "--syncmode=full"
+
+    network_params:
+      network_id: "12345"
+      fulu_fork_epoch: 18446744073709551615
+      electra_fork_epoch: 0
+
+    additional_services:
+      - blockscout
+      - prometheus_grafana
+      - assertoor
