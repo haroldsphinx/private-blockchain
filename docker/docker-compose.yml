@@ -1,6 +1,6 @@
 services:
   geth:
-    image: ethereum/client-go:v1.14.12
+    image: ethereum/client-go:v1.15.2
     container_name: geth
     restart: unless-stopped
     command:
@@ -39,7 +39,7 @@ services:
       - ./genesis/jwt.hex:/jwt/jwt.hex:ro
 
   lighthouse-bn:
-    image: sigp/lighthouse:v5.3.0
+    image: sigp/lighthouse:v6.0.1
     container_name: lighthouse-bn
     restart: unless-stopped
     depends_on: [geth]
@@ -73,7 +73,7 @@ services:
       - ./genesis/jwt.hex:/jwt/jwt.hex:ro
 
   lighthouse-vc:
-    image: sigp/lighthouse:v5.3.0
+    image: sigp/lighthouse:v6.0.1
     container_name: lighthouse-vc
     restart: unless-stopped
     profiles: ["validator"]

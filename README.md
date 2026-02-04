@@ -20,7 +20,7 @@ Private Ethereum testnet with geth + lighthouse across multiple VMs. Nodes peer 
 
 After genesis generation, get the pubkey from node-1's key:
 ```sh
-docker run --rm -v $(pwd)/genesis/nodekeys:/keys ethereum/client-go:v1.14.12 \
+docker run --rm -v $(pwd)/genesis/nodekeys:/keys ethereum/client-go:v1.15.2 \
   bootnode -nodekey=/keys/node-1.key -writeaddress
 ```
 
