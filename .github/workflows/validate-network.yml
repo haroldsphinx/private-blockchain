@@ -7,54 +7,76 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  TESTNET_IP: "35.172.172.178" 
+  RPC_PORT: 32004
+
 jobs:
   validate:
-    name: Deploy & Validate zama-pevm-testnet
+    name: Validate Testnet Health
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Kurtosis
+      - name: Verify RPC endpoint responds
         run: |
-          echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | sudo tee /etc/apt/sources.list.d/kurtosis.list
-          sudo apt-get update
-          sudo apt-get install -y kurtosis-cli
+          curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}' \
+            --connect-timeout 10 --max-time 30
 
-      - name: Start Kurtosis engine
-        run: kurtosis engine start
-
-      - name: Deploy zama-pevm-testnet
+      - name: Check block production
         run: |
-          kurtosis run \
-            --enclave zama-testnet \
-            github.com/ethpandaops/ethereum-package \
-            --args-file kurtosis/network_params.yaml
+          BLOCK1=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | jq -r '.result')
+          echo "Block at T+0: $BLOCK1"
 
-      - name: Display enclave services
-        run: kurtosis enclave inspect zama-testnet
+          sleep 15
 
-      - name: Run Assertoor network validation
-        uses: ethpandaops/assertoor-github-action@v1
-        with:
-          kurtosis_enclave_name: zama-testnet
+          BLOCK2=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | jq -r '.result')
+          echo "Block at T+15s: $BLOCK2"
 
-      - name: Dump enclave logs on failure
-        if: failure()
+          if [ "$BLOCK1" = "$BLOCK2" ]; then
+            echo "ERROR: No new blocks produced"
+            exit 1
+          fi
+
+      - name: Check peer connectivity
         run: |
-          mkdir -p /tmp/enclave-dump
-          kurtosis enclave dump zama-testnet /tmp/enclave-dump
+          PEERS=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' | jq -r '.result')
+          PEER_COUNT=$((PEERS))
+          echo "Peer count: $PEER_COUNT"
+          if [ "$PEER_COUNT" -lt 1 ]; then
+            echo "ERROR: No peers connected"
+            exit 1
+          fi
 
-      - name: Upload enclave logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: enclave-logs
-          path: /tmp/enclave-dump
-          retention-days: 7
+      - name: Check sync status
+        run: |
+          SYNCING=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' | jq -r '.result')
+          if [ "$SYNCING" != "false" ]; then
+            echo "WARNING: Node is syncing"
+            echo "$SYNCING"
+          fi
 
-      - name: Cleanup
-        if: always()
-        run: kurtosis enclave rm -f zama-testnet || true
+      - name: Check chain ID
+        run: |
+          CHAIN_ID=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' | jq -r '.result')
+          CHAIN_ID_DEC=$((CHAIN_ID))
+          echo "Chain ID: $CHAIN_ID_DEC"
+          if [ "$CHAIN_ID_DEC" != "12345" ]; then
+            echo "ERROR: Unexpected chain ID (expected 12345)"
+            exit 1
+          fi

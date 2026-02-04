@@ -18,7 +18,7 @@ module "testnet_instance" {
     aws_security_group.testnet.id,
   ]
 
-  associate_public_ip_address = var.associate_public_ip
+  associate_public_ip_address = false
   root_volume_size            = var.root_volume_size
   user_data_base64            = data.cloudinit_config.this.rendered
   environment                 = var.environment
@@ -28,9 +28,25 @@ module "testnet_instance" {
   public_key    = local.ssh_public_key != "" ? local.ssh_public_key : null
 }
 
+resource "aws_eip" "testnet" {
+  domain = "vpc"
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name = "${local.project_name}-eip"
+    },
+  )
+}
+
+resource "aws_eip_association" "testnet" {
+  instance_id   = module.testnet_instance.instance_id
+  allocation_id = aws_eip.testnet.id
+}
+
 output "instance_public_ip" {
-  description = "Public IP of the zama-pevm-testnet instance."
-  value       = module.testnet_instance.public_ip
+  description = "Elastic IP of the zama-pevm-testnet instance."
+  value       = aws_eip.testnet.public_ip
 }
 
 output "instance_private_ip" {

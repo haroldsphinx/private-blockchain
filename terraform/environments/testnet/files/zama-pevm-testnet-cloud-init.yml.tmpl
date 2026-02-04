@@ -40,8 +40,7 @@ write_files:
         exit 0
       fi
 
-      echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | \
-        tee /etc/apt/sources.list.d/kurtosis.list
+      echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | tee /etc/apt/sources.list.d/kurtosis.list
       apt-get update
       apt-get install -y kurtosis-cli
 
