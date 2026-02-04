@@ -73,7 +73,7 @@ variable "root_volume_size" {
 variable "ssh_public_key_path" {
   description = "path to an ssh public key to register. leave blank to skip key creation"
   type        = string
-  default     = "~/.ssh/id_rsa.pub"
+  default     = ""
 }
 
 variable "ssh_public_key" {
