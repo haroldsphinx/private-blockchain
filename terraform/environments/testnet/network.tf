@@ -105,26 +105,34 @@ resource "aws_security_group" "testnet" {
   }
 
   ingress {
-    description = "Observability stack (grafana 3001, prometheus 9091, alertmanager 9093)"
+    description = "Nginx - RPC"
     protocol    = "tcp"
-    from_port   = 3001
-    to_port     = 3001
+    from_port   = 8545
+    to_port     = 8545
     cidr_blocks = var.allowed_ingress_cidrs
   }
 
   ingress {
-    description = "Observability Prometheus"
+    description = "Nginx - Grafana"
     protocol    = "tcp"
-    from_port   = 9091
-    to_port     = 9091
+    from_port   = 3000
+    to_port     = 3000
     cidr_blocks = var.allowed_ingress_cidrs
   }
 
   ingress {
-    description = "AlertManager"
+    description = "Nginx - Prometheus"
     protocol    = "tcp"
-    from_port   = 9093
-    to_port     = 9093
+    from_port   = 9090
+    to_port     = 9090
+    cidr_blocks = var.allowed_ingress_cidrs
+  }
+
+  ingress {
+    description = "Nginx - AlertManager"
+    protocol    = "tcp"
+    from_port   = 9094
+    to_port     = 9094
     cidr_blocks = var.allowed_ingress_cidrs
   }
 

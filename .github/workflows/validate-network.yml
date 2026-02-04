@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  TESTNET_IP: "35.172.172.178" 
-  RPC_PORT: 32004
+  TESTNET_IP: "35.172.172.178"
+  RPC_PORT: 8545
 
 jobs:
   validate:

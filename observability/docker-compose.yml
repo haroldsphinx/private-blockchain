@@ -1,4 +1,19 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    network_mode: host
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        envsubst '$$EL_RPC_PORT' < /etc/nginx/nginx.conf.tmpl > /etc/nginx/nginx.conf
+        exec nginx -g 'daemon off;'
+    environment:
+      EL_RPC_PORT: ${EL_RPC_PORT}
+    volumes:
+      - ./nginx.conf.tmpl:/etc/nginx/nginx.conf.tmpl:ro
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

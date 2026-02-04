@@ -70,11 +70,11 @@ write_files:
       CL_METRICS_PORT=$(get_port cl-1-lighthouse-geth metrics)
       EL_RPC_PORT=$(get_port el-3-geth-lighthouse rpc)
 
-      cat > /opt/zama-pevm-testnet/.ports <<PORTSEOF
-      EL_METRICS_PORT=$${EL_METRICS_PORT}
-      CL_METRICS_PORT=$${CL_METRICS_PORT}
-      EL_RPC_PORT=$${EL_RPC_PORT}
-      PORTSEOF
+      cat > /opt/zama-pevm-testnet/.ports <<EOF
+EL_METRICS_PORT=$EL_METRICS_PORT
+CL_METRICS_PORT=$CL_METRICS_PORT
+EL_RPC_PORT=$EL_RPC_PORT
+EOF
 
       git clone "$REPO_URL" /opt/zama-pevm-testnet/repo || true
 
