@@ -27,23 +27,22 @@ ssh ubuntu@<PUBLIC_IP> 'sudo tail -f /var/log/cloud-init-output.log'
 
 ## Services
 
-Public endpoints (via nginx reverse proxy):
-
-| Port | Service | URL |
-| --- | --- | --- |
-| 8545 | JSON-RPC | `http://<IP>:8545` |
-| 3000 | Grafana | `http://<IP>:3000` (admin/admin) |
-| 9090 | Prometheus | `http://<IP>:9090` |
-| 9094 | AlertManager | `http://<IP>:9094` |
+| Port | Service |
+| --- | --- |
+| 32017 | JSON-RPC |
+| 36001 | Blockscout |
+| 3000 | Grafana (admin/admin) |
+| 9090 | Prometheus |
+| 9093 | AlertManager |
 
 Test RPC:
 ```sh
-curl -X POST http://<IP>:8545 \
+curl -X POST http://<IP>:32017 \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
 
-Internal Kurtosis services (localhost only):
+Kurtosis services:
 ```sh
 kurtosis enclave inspect zama-testnet
 ```
@@ -53,17 +52,13 @@ kurtosis enclave inspect zama-testnet
 Defined in `kurtosis/network_params.yaml`:
 - 2 validator nodes (geth + lighthouse, 32 keys each)
 - 1 RPC node (geth + lighthouse, no validators)
-- Assertoor for automated network validation
 - Blockscout block explorer
 
 ## Monitoring
 
-Two monitoring layers:
+Observability stack (Prometheus, Grafana, AlertManager) deployed via cloud-init.
 
-1. **Kurtosis built-in** — Prometheus + Grafana deployed inside the enclave (ports in 36000 range)
-2. **Observability stack** — Custom docker-compose with Prometheus, Grafana, Loki, Promtail, AlertManager, Blackbox Exporter, Node Exporter (ports 3001, 9091, 9093)
-
-Alerts: ELNodeDown, CLNodeDown, PeerCountLow, NoNewBlocks, RPCDown, ChainNotSynced.
+Alerts configured: ELNodeDown, CLNodeDown, NoNewBlocks.
 
 ## CI
 

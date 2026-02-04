@@ -94,10 +94,11 @@ variable "cloud_init_file" {
   default     = "./files/zama-pevm-testnet-cloud-init.yml.tmpl"
 }
 
-variable "repo_url" {
-  description = "Git repository URL cloned on the instance for observability configs."
+variable "gmail_app_password" {
+  description = "Gmail app password for alertmanager email notifications"
   type        = string
-  default     = "https://github.com/haroldsphinx/private-blockchain.git"
+  sensitive   = true
+  default     = ""
 }
 
 variable "tags" {

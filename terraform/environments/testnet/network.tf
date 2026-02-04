@@ -105,15 +105,7 @@ resource "aws_security_group" "testnet" {
   }
 
   ingress {
-    description = "Nginx - RPC"
-    protocol    = "tcp"
-    from_port   = 8545
-    to_port     = 8545
-    cidr_blocks = var.allowed_ingress_cidrs
-  }
-
-  ingress {
-    description = "Nginx - Grafana"
+    description = "Grafana"
     protocol    = "tcp"
     from_port   = 3000
     to_port     = 3000
@@ -121,7 +113,7 @@ resource "aws_security_group" "testnet" {
   }
 
   ingress {
-    description = "Nginx - Prometheus"
+    description = "Prometheus"
     protocol    = "tcp"
     from_port   = 9090
     to_port     = 9090
@@ -129,10 +121,10 @@ resource "aws_security_group" "testnet" {
   }
 
   ingress {
-    description = "Nginx - AlertManager"
+    description = "AlertManager"
     protocol    = "tcp"
-    from_port   = 9094
-    to_port     = 9094
+    from_port   = 9093
+    to_port     = 9093
     cidr_blocks = var.allowed_ingress_cidrs
   }
 

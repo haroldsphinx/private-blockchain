@@ -12,6 +12,7 @@ participants:
     validator_count: 0
     el_extra_params:
       - "--syncmode=full"
+      - "--http.addr=0.0.0.0"
       - "--http.vhosts=*"
       - "--http.corsdomain=*"
 
@@ -23,7 +24,6 @@ network_params:
 additional_services:
   - blockscout
   - prometheus_grafana
-  - assertoor
 
 port_publisher:
   nat_exit_ip: KURTOSIS_IP_ADDR_PLACEHOLDER

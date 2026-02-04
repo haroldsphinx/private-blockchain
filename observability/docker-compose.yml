@@ -46,12 +46,17 @@ services:
     image: prom/alertmanager:v0.27.0
     container_name: alertmanager
     restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
     command:
-      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - |
+        sed 's/__GMAIL_APP_PASSWORD__/${GMAIL_APP_PASSWORD}/g' /etc/alertmanager/alertmanager.yml.tmpl > /tmp/alertmanager.yml
+        exec /bin/alertmanager --config.file=/tmp/alertmanager.yml
+    environment:
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD}
     ports:
       - "9093:9093"
     volumes:
-      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./alertmanager.yml.tmpl:/etc/alertmanager/alertmanager.yml.tmpl:ro
 
   grafana:
     image: grafana/grafana:10.4.5

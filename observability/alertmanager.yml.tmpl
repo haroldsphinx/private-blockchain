@@ -1,0 +1,18 @@
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'haroldsphinx@gmail.com'
+  smtp_auth_username: 'haroldsphinx@gmail.com'
+  smtp_auth_password: '__GMAIL_APP_PASSWORD__'
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: email
+
+receivers:
+  - name: email
+    email_configs:
+      - to: 'haroldsphinx@gmail.com'
+        send_resolved: true

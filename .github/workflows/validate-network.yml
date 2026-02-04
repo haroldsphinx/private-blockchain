@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  TESTNET_IP: "52.22.192.77"
-  RPC_PORT: 8545
+  TESTNET_IP: "35.169.74.56"
+  RPC_PORT: 32017
 
 jobs:
   validate:
@@ -80,3 +80,30 @@ jobs:
             echo "ERROR: Unexpected chain ID (expected 12345)"
             exit 1
           fi
+
+      - name: Test transaction functionality
+        run: |
+          # Test eth_call (simulated transaction execution)
+          CALL_RESULT=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_call","params":[{"to":"0x0000000000000000000000000000000000000000","data":"0x"},"latest"],"id":1}' | jq -r '.result')
+          echo "eth_call result: $CALL_RESULT"
+
+          # Test eth_estimateGas
+          GAS=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_estimateGas","params":[{"to":"0x0000000000000000000000000000000000000000","value":"0x1"}],"id":1}' | jq -r '.result')
+          echo "Estimated gas: $GAS"
+
+          # Test eth_getTransactionCount
+          NONCE=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0x0000000000000000000000000000000000000000","latest"],"id":1}' | jq -r '.result')
+          echo "Transaction count: $NONCE"
+
+          # Test eth_getBlockByNumber with transactions
+          BLOCK=$(curl -sf -X POST http://$TESTNET_IP:$RPC_PORT \
+            -H 'Content-Type: application/json' \
+            -d '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",true],"id":1}' | jq -r '.result')
+          TX_COUNT=$(echo "$BLOCK" | jq '.transactions | length')
+          echo "Transactions in latest block: $TX_COUNT"

@@ -16,7 +16,7 @@ locals {
   )
 
   cloud_init_raw = trimspace(var.cloud_init_file) != "" ? templatefile(var.cloud_init_file, {
-    network_params = trimspace(file("${local.repo_root}/kurtosis/network_params.yaml"))
-    repo_url       = var.repo_url
+    network_params     = trimspace(file("${local.repo_root}/kurtosis/network_params.yaml"))
+    gmail_app_password = var.gmail_app_password
   }) : ""
 }
