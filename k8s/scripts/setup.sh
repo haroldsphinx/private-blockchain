@@ -21,9 +21,9 @@ fi
 
 kurtosis enclave inspect "$ENCLAVE_NAME"
 
-# extract dynamic ports assigned by kurtosis
+# extract ports for the observability docker-compose stack
 get_port() {
-  kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*127\.0\.0\.1:\([0-9]*\).*/\1/p' | head -1
+  kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*0\.0\.0\.0:\([0-9]*\).*/\1/p' | head -1
 }
 EL_METRICS_PORT=$(get_port el-1-geth-lighthouse metrics)
 CL_METRICS_PORT=$(get_port cl-1-lighthouse-geth metrics)
@@ -39,10 +39,13 @@ cd "$REPO_ROOT/observability"
 docker compose up -d
 
 echo ""
-echo "services:"
-echo "  rpc:        http://127.0.0.1:${EL_RPC_PORT}"
-echo "  grafana:    http://localhost:3000 (admin/admin)"
-echo "  prometheus: http://localhost:9090"
+echo "all kurtosis ports bound to 0.0.0.0 via port_publisher:"
+kurtosis enclave inspect "$ENCLAVE_NAME"
+echo ""
+echo "observability stack:"
+echo "  grafana:    http://localhost:3001 (admin/admin)"
+echo "  prometheus: http://localhost:9091"
+echo "  alertmanager: http://localhost:9093"
 echo ""
 echo "teardown:"
 echo "  cd $REPO_ROOT/observability && docker compose down"

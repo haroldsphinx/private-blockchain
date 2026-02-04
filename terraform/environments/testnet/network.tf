@@ -73,26 +73,58 @@ resource "aws_security_group" "testnet" {
   }
 
   ingress {
-    description = "EL JSON-RPC"
+    description = "Kurtosis EL nodes (rpc, ws, metrics, discovery)"
     protocol    = "tcp"
-    from_port   = 8545
-    to_port     = 8545
+    from_port   = 32000
+    to_port     = 32019
     cidr_blocks = var.allowed_ingress_cidrs
   }
 
   ingress {
-    description = "Grafana"
+    description = "Kurtosis CL nodes (http, metrics, discovery)"
     protocol    = "tcp"
-    from_port   = 3000
-    to_port     = 3000
+    from_port   = 33000
+    to_port     = 33019
     cidr_blocks = var.allowed_ingress_cidrs
   }
 
   ingress {
-    description = "Prometheus"
+    description = "Kurtosis validator clients"
     protocol    = "tcp"
-    from_port   = 9090
-    to_port     = 9090
+    from_port   = 34000
+    to_port     = 34009
+    cidr_blocks = var.allowed_ingress_cidrs
+  }
+
+  ingress {
+    description = "Kurtosis additional services (blockscout, grafana, prometheus, assertoor)"
+    protocol    = "tcp"
+    from_port   = 36000
+    to_port     = 36019
+    cidr_blocks = var.allowed_ingress_cidrs
+  }
+
+  ingress {
+    description = "Observability stack (grafana 3001, prometheus 9091, alertmanager 9093)"
+    protocol    = "tcp"
+    from_port   = 3001
+    to_port     = 3001
+    cidr_blocks = var.allowed_ingress_cidrs
+  }
+
+  ingress {
+    description = "Observability Prometheus"
+    protocol    = "tcp"
+    from_port   = 9091
+    to_port     = 9091
+    cidr_blocks = var.allowed_ingress_cidrs
+  }
+
+  ingress {
+    description = "AlertManager"
+    protocol    = "tcp"
+    from_port   = 9093
+    to_port     = 9093
     cidr_blocks = var.allowed_ingress_cidrs
   }
 

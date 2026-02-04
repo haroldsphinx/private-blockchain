@@ -1,5 +1,4 @@
 participants:
-  # validator nodes 
   - el_type: geth
     cl_type: lighthouse
     count: 2
@@ -7,8 +6,6 @@ participants:
     el_extra_params:
       - "--syncmode=full"
 
-
-  # RPC node 
   - el_type: geth
     cl_type: lighthouse
     count: 1
@@ -27,3 +24,18 @@ additional_services:
   - blockscout
   - prometheus_grafana
   - assertoor
+
+port_publisher:
+  nat_exit_ip: KURTOSIS_IP_ADDR_PLACEHOLDER
+  el:
+    enabled: true
+    public_port_start: 32000
+  cl:
+    enabled: true
+    public_port_start: 33000
+  vc:
+    enabled: true
+    public_port_start: 34000
+  additional_services:
+    enabled: true
+    public_port_start: 36000

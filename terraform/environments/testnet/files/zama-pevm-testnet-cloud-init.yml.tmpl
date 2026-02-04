@@ -6,7 +6,6 @@ packages:
   - docker.io
   - curl
   - jq
-  - socat
   - git
 
 write_files:
@@ -41,13 +40,11 @@ write_files:
         exit 0
       fi
 
-      # install kurtosis
       echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | \
         tee /etc/apt/sources.list.d/kurtosis.list
       apt-get update
       apt-get install -y kurtosis-cli
 
-      # install docker compose plugin
       mkdir -p /usr/local/lib/docker/cli-plugins
       curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
         -o /usr/local/lib/docker/cli-plugins/docker-compose
@@ -66,50 +63,37 @@ write_files:
 
       kurtosis enclave inspect "$ENCLAVE_NAME"
 
-      # extract dynamic ports assigned by kurtosis
+      # extract ports for the observability docker-compose stack
       get_port() {
-        kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*127\.0\.0\.1:\([0-9]*\).*/\1/p' | head -1
+        kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*0\.0\.0\.0:\([0-9]*\).*/\1/p' | head -1
       }
       EL_METRICS_PORT=$(get_port el-1-geth-lighthouse metrics)
       CL_METRICS_PORT=$(get_port cl-1-lighthouse-geth metrics)
       EL_RPC_PORT=$(get_port el-3-geth-lighthouse rpc)
 
-      echo "EL_METRICS_PORT=$${EL_METRICS_PORT}" > /opt/zama-pevm-testnet/.ports
-      echo "CL_METRICS_PORT=$${CL_METRICS_PORT}" >> /opt/zama-pevm-testnet/.ports
-      echo "EL_RPC_PORT=$${EL_RPC_PORT}" >> /opt/zama-pevm-testnet/.ports
+      cat > /opt/zama-pevm-testnet/.ports <<PORTSEOF
+      EL_METRICS_PORT=$${EL_METRICS_PORT}
+      CL_METRICS_PORT=$${CL_METRICS_PORT}
+      EL_RPC_PORT=$${EL_RPC_PORT}
+      PORTSEOF
 
-      # clone repo for observability configs
       git clone "$REPO_URL" /opt/zama-pevm-testnet/repo || true
 
-      # start observability stack with extracted ports
       cp /opt/zama-pevm-testnet/.ports /opt/zama-pevm-testnet/repo/observability/.env
       cd /opt/zama-pevm-testnet/repo/observability
       docker compose up -d
 
-      # expose RPC on :8545 for external access
-      if [ -n "$${EL_RPC_PORT:-}" ]; then
-        socat TCP-LISTEN:8545,fork,reuseaddr TCP:127.0.0.1:$EL_RPC_PORT &
-      fi
-
       touch /opt/zama-pevm-testnet/.bootstrap-complete
 
-      echo "bootstrap done"
-      echo "  rpc:       http://<PUBLIC_IP>:8545"
-      echo "  grafana:   http://<PUBLIC_IP>:3000 (admin/admin)"
-      echo "  prometheus: http://<PUBLIC_IP>:9090"
-
-  - path: /opt/zama-pevm-testnet/port-forward.sh
-    permissions: "0755"
-    content: |
-      #!/bin/bash
-      set -euo pipefail
-
-      if [ -f /opt/zama-pevm-testnet/.ports ]; then
-        source /opt/zama-pevm-testnet/.ports
-        if [ -n "$${EL_RPC_PORT:-}" ]; then
-          socat TCP-LISTEN:8545,fork,reuseaddr TCP:127.0.0.1:$EL_RPC_PORT
-        fi
-      fi
+      PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 || echo "<PUBLIC_IP>")
+      echo ""
+      echo "bootstrap done — all ports bound to 0.0.0.0 via port_publisher"
+      echo ""
+      kurtosis enclave inspect "$ENCLAVE_NAME"
+      echo ""
+      echo "  observability grafana:    http://$PUBLIC_IP:3001 (admin/admin)"
+      echo "  observability prometheus: http://$PUBLIC_IP:9091"
+      echo "  alertmanager:             http://$PUBLIC_IP:9093"
 
   - path: /etc/systemd/system/zama-pevm-testnet.service
     permissions: "0644"
@@ -131,23 +115,6 @@ write_files:
       [Install]
       WantedBy=multi-user.target
 
-  - path: /etc/systemd/system/zama-rpc-forward.service
-    permissions: "0644"
-    content: |
-      [Unit]
-      Description=RPC port forwarder
-      After=zama-pevm-testnet.service
-      Requires=zama-pevm-testnet.service
-
-      [Service]
-      Type=simple
-      ExecStart=/opt/zama-pevm-testnet/port-forward.sh
-      Restart=always
-      RestartSec=10
-
-      [Install]
-      WantedBy=multi-user.target
-
 runcmd:
   - systemctl daemon-reload
   - systemctl enable docker
@@ -156,7 +123,5 @@ runcmd:
   - mkdir -p /root/.config/kurtosis
   - mkdir -p /opt/zama-pevm-testnet/kurtosis
   - chmod +x /opt/zama-pevm-testnet/bootstrap.sh
-  - chmod +x /opt/zama-pevm-testnet/port-forward.sh
   - systemctl enable zama-pevm-testnet.service
-  - systemctl enable zama-rpc-forward.service
   - /opt/zama-pevm-testnet/bootstrap.sh

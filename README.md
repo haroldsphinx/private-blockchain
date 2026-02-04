@@ -27,16 +27,24 @@ ssh ubuntu@<PUBLIC_IP> 'sudo tail -f /var/log/cloud-init-output.log'
 
 ## Services
 
-| Endpoint | What |
-| --- | --- |
-| `http://<IP>:8545` | geth JSON-RPC (dedicated RPC node) |
-| `http://<IP>:3000` | Grafana (admin/admin) |
-| `http://<IP>:9090` | Prometheus |
-
-Locally, the RPC port is dynamically assigned by Kurtosis — `setup.sh` prints it at the end.
+Kurtosis binds all services to `0.0.0.0` on fixed ports (`port_publisher`). Get the full map with:
 
 ```sh
-curl -X POST http://<IP>:8545 \
+kurtosis enclave inspect zama-testnet
+```
+
+| Port range | What |
+| --- | --- |
+| `32000+` | geth nodes (rpc, ws, metrics, discovery) |
+| `33000+` | lighthouse nodes (http, metrics, discovery) |
+| `34000+` | validator clients |
+| `36000+` | blockscout, grafana, prometheus, assertoor |
+| `3001` | observability grafana (admin/admin) |
+| `9091` | observability prometheus |
+| `9093` | alertmanager |
+
+```sh
+curl -X POST http://<IP>:<EL3_RPC_PORT> \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
@@ -51,11 +59,12 @@ Defined in `kurtosis/network_params.yaml`:
 
 ## Monitoring
 
-Prometheus + Grafana + Loki + AlertManager via docker-compose in `observability/`.
+Two monitoring layers:
+
+1. **Kurtosis built-in** — Prometheus + Grafana deployed inside the enclave (ports in 36000 range)
+2. **Observability stack** — Custom docker-compose with Prometheus, Grafana, Loki, Promtail, AlertManager, Blackbox Exporter, Node Exporter (ports 3001, 9091, 9093)
 
 Alerts: ELNodeDown, CLNodeDown, PeerCountLow, NoNewBlocks, RPCDown, ChainNotSynced.
-
-The setup script extracts Kurtosis-assigned ports and writes them to `observability/.env` so Prometheus can scrape the nodes.
 
 ## CI
 
