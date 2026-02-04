@@ -64,17 +64,15 @@ write_files:
 
       # extract ports for the observability docker-compose stack
       get_port() {
-        kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*0\.0\.0\.0:\([0-9]*\).*/\1/p' | head -1
+        kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*-> [0-9.]*:\([0-9]*\).*/\1/p' | head -1
       }
       EL_METRICS_PORT=$(get_port el-1-geth-lighthouse metrics)
       CL_METRICS_PORT=$(get_port cl-1-lighthouse-geth metrics)
       EL_RPC_PORT=$(get_port el-3-geth-lighthouse rpc)
 
-      cat > /opt/zama-pevm-testnet/.ports <<EOF
-EL_METRICS_PORT=$EL_METRICS_PORT
-CL_METRICS_PORT=$CL_METRICS_PORT
-EL_RPC_PORT=$EL_RPC_PORT
-EOF
+      echo "EL_METRICS_PORT=$EL_METRICS_PORT" > /opt/zama-pevm-testnet/.ports
+      echo "CL_METRICS_PORT=$CL_METRICS_PORT" >> /opt/zama-pevm-testnet/.ports
+      echo "EL_RPC_PORT=$EL_RPC_PORT" >> /opt/zama-pevm-testnet/.ports
 
       git clone "$REPO_URL" /opt/zama-pevm-testnet/repo || true
 

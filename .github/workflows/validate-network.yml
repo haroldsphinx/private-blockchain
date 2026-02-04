@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  TESTNET_IP: "35.172.172.178"
+  TESTNET_IP: "52.22.192.77"
   RPC_PORT: 8545
 
 jobs:

@@ -27,26 +27,25 @@ ssh ubuntu@<PUBLIC_IP> 'sudo tail -f /var/log/cloud-init-output.log'
 
 ## Services
 
-Kurtosis binds all services to `0.0.0.0` on fixed ports (`port_publisher`). Get the full map with:
+Public endpoints (via nginx reverse proxy):
 
+| Port | Service | URL |
+| --- | --- | --- |
+| 8545 | JSON-RPC | `http://<IP>:8545` |
+| 3000 | Grafana | `http://<IP>:3000` (admin/admin) |
+| 9090 | Prometheus | `http://<IP>:9090` |
+| 9094 | AlertManager | `http://<IP>:9094` |
+
+Test RPC:
 ```sh
-kurtosis enclave inspect zama-testnet
-```
-
-| Port range | What |
-| --- | --- |
-| `32000+` | geth nodes (rpc, ws, metrics, discovery) |
-| `33000+` | lighthouse nodes (http, metrics, discovery) |
-| `34000+` | validator clients |
-| `36000+` | blockscout, grafana, prometheus, assertoor |
-| `3001` | observability grafana (admin/admin) |
-| `9091` | observability prometheus |
-| `9093` | alertmanager |
-
-```sh
-curl -X POST http://<IP>:<EL3_RPC_PORT> \
+curl -X POST http://<IP>:8545 \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+```
+
+Internal Kurtosis services (localhost only):
+```sh
+kurtosis enclave inspect zama-testnet
 ```
 
 ## Network
@@ -68,13 +67,12 @@ Alerts: ELNodeDown, CLNodeDown, PeerCountLow, NoNewBlocks, RPCDown, ChainNotSync
 
 ## CI
 
-| Workflow | Backend | Timeout |
-| --- | --- | --- |
-| `validate-network.yml` | Docker | 45 min |
-| `validate-k8s.yml` | Minikube | 60 min |
-| `infra.yml` | Terraform | plan only |
+| Workflow | What |
+| --- | --- |
+| `validate-network.yml` | RPC health checks against deployed testnet |
+| `infra.yml` | Terraform plan/apply |
 
-Both network workflows deploy the chain and run Assertoor validation. Enclave logs are uploaded as artifacts on failure.
+The validation workflow checks: RPC response, block production, peer connectivity, sync status, chain ID.
 
 ## Teardown
 

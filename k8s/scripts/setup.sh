@@ -23,7 +23,7 @@ kurtosis enclave inspect "$ENCLAVE_NAME"
 
 # extract ports for the observability docker-compose stack
 get_port() {
-  kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*0\.0\.0\.0:\([0-9]*\).*/\1/p' | head -1
+  kurtosis service inspect "$ENCLAVE_NAME" "$1" | grep "$2:" | sed -n 's/.*-> [0-9.]*:\([0-9]*\).*/\1/p' | head -1
 }
 EL_METRICS_PORT=$(get_port el-1-geth-lighthouse metrics)
 CL_METRICS_PORT=$(get_port cl-1-lighthouse-geth metrics)

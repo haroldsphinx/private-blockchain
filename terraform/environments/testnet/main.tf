@@ -31,6 +31,10 @@ module "testnet_instance" {
 resource "aws_eip" "testnet" {
   domain = "vpc"
 
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
+
   tags = merge(
     local.common_tags,
     {
