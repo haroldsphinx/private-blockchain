@@ -13,7 +13,7 @@ write_files:
     content: |
       services:
         prometheus:
-          image: prom/prometheus:latest
+          image: prom/prometheus:v3.2.1
           container_name: prometheus
           restart: unless-stopped
           command:
@@ -21,35 +21,39 @@ write_files:
             - "--web.enable-lifecycle"
             - "--web.enable-remote-write-receiver"
             - "--storage.tsdb.path=/prometheus"
-            - "--storage.tsdb.out-of-order-time-window=5m"
+            - "--storage.tsdb.retention.time=15d"
           ports:
             - "9090:9090"
           volumes:
+            - prometheus-data:/prometheus
             - /opt/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
             - /opt/monitoring/rules.yml:/etc/prometheus/rules.yml:ro
 
         loki:
-          image: grafana/loki:2.9.4
+          image: grafana/loki:3.4.2
           container_name: loki
           restart: unless-stopped
           ports:
             - "3100:3100"
-          command:
-            - "-config.file=/etc/loki/local-config.yaml"
+          volumes:
+            - loki-data:/loki
+            - /opt/monitoring/loki.yml:/etc/loki/local-config.yaml:ro
 
         alertmanager:
-          image: prom/alertmanager:v0.27.0
+          image: prom/alertmanager:v0.28.1
           container_name: alertmanager
           restart: unless-stopped
           command:
             - "--config.file=/etc/alertmanager/alertmanager.yml"
+            - "--storage.path=/alertmanager"
           ports:
             - "9093:9093"
           volumes:
+            - alertmanager-data:/alertmanager
             - /opt/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
 
         grafana:
-          image: grafana/grafana:10.4.5
+          image: grafana/grafana:11.5.2
           container_name: grafana
           restart: unless-stopped
           environment:
@@ -58,10 +62,11 @@ write_files:
           ports:
             - "3000:3000"
           volumes:
+            - grafana-data:/var/lib/grafana
             - /opt/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
 
         node-exporter:
-          image: prom/node-exporter:latest
+          image: prom/node-exporter:v1.9.0
           container_name: node-exporter
           restart: unless-stopped
           ports:
@@ -75,6 +80,40 @@ write_files:
             - '--path.rootfs=/rootfs'
             - '--path.sysfs=/host/sys'
 
+      volumes:
+        prometheus-data:
+        loki-data:
+        alertmanager-data:
+        grafana-data:
+
+  - path: /opt/monitoring/loki.yml
+    permissions: "0644"
+    content: |
+      auth_enabled: false
+      server:
+        http_listen_port: 3100
+      common:
+        path_prefix: /loki
+        storage:
+          filesystem:
+            chunks_directory: /loki/chunks
+            rules_directory: /loki/rules
+        replication_factor: 1
+        ring:
+          kvstore:
+            store: inmemory
+      schema_config:
+        configs:
+          - from: 2020-10-24
+            store: tsdb
+            object_store: filesystem
+            schema: v13
+            index:
+              prefix: index_
+              period: 24h
+      limits_config:
+        retention_period: 168h
+
   - path: /opt/monitoring/prometheus.yml
     permissions: "0644"
     content: |
@@ -87,7 +126,7 @@ write_files:
       alerting:
         alertmanagers:
           - static_configs:
-              - targets: ['localhost:9093']
+              - targets: ['alertmanager:9093']
 
       scrape_configs:
         - job_name: node-exporter
@@ -98,7 +137,7 @@ write_files:
     permissions: "0644"
     content: |
       groups:
-        - name: blockchain
+        - name: ethereum-private-node
           rules:
             - alert: ELNodeDown
               expr: up{job="geth"} == 0
@@ -154,12 +193,12 @@ write_files:
         - name: Prometheus
           type: prometheus
           access: proxy
-          url: http://localhost:9090
+          url: http://prometheus:9090
           isDefault: true
         - name: Loki
           type: loki
           access: proxy
-          url: http://localhost:3100
+          url: http://loki:3100
 
   - path: /opt/monitoring/grafana/provisioning/dashboards/dashboards.yml
     permissions: "0644"

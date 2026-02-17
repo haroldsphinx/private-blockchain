@@ -22,7 +22,6 @@ network_params:
   electra_fork_epoch: 0
 
 additional_services:
-  - blockscout
   - prometheus_grafana
 
 port_publisher:

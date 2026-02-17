@@ -14,12 +14,14 @@ write_files:
     content: |
       NODE_NAME=${node_name}
       NODE_ROLE=${node_role}
-      OWN_EIP=${own_eip}
-      BOOTNODE_EIP=${bootnode_eip}
+      HOST_IP=${host_ip}
+      BOOTNODE_IP=${bootnode_ip}
       BOOTNODE_PUBKEY=${bootnode_pubkey}
       BOOTNODE_ENR=${bootnode_enr}
       MONITORING_IP=${monitoring_private_ip}
       NETWORK_ID=12345
+      GETH_BOOTNODES=${bootnode_pubkey != "" ? "enode://${bootnode_pubkey}@${bootnode_ip}:30303" : ""}
+      LIGHTHOUSE_BOOTNODES=${bootnode_enr}
 
   - path: /opt/zama/telescope.yml
     permissions: "0644"
@@ -35,7 +37,7 @@ write_files:
             - url: http://${monitoring_private_ip}:9090/api/v1/write
         wal_directory: /tmp/telescope
         configs:
-          - name: blockchain
+          - name: ethereum-private-node
             host_filter: false
             scrape_configs:
               - job_name: geth
@@ -84,22 +86,29 @@ write_files:
       cp /opt/zama/telescope.yml telescope.yml
       ln -sf /opt/zama/repo/genesis genesis
 
-      docker run --rm -v geth-data:/data -v $(pwd)/genesis/el:/genesis:ro \
+      # Use consistent project name for docker-compose volumes
+      export COMPOSE_PROJECT_NAME=zama
+
+      docker run --rm -v zama_geth-data:/data -v $(pwd)/genesis/el:/genesis:ro \
         ethereum/client-go:v1.15.2 init --datadir=/data /genesis/genesis.json
 
-      mkdir -p /var/lib/docker/volumes/geth-data/_data/geth
-      cp genesis/nodekeys/${node_name}.key /var/lib/docker/volumes/geth-data/_data/geth/nodekey
+      mkdir -p /var/lib/docker/volumes/zama_geth-data/_data/geth
+      cp genesis/nodekeys/${node_name}.key /var/lib/docker/volumes/zama_geth-data/_data/geth/nodekey
 
       if [ "${node_role}" = "validator" ]; then
-        docker run --rm \
-          -v lighthouse-vc-data:/data \
-          -v $(pwd)/genesis:/genesis:ro \
-          sigp/lighthouse:v6.0.1 \
-          lighthouse account validator import \
-          --network=custom --testnet-dir=/genesis/cl --datadir=/data \
-          --directory=/genesis/validator-keys/${node_name}/keys \
-          --password-file=/genesis/validator-keys/${node_name}/secrets \
-          --reuse-password
+        # Import each validator key individually
+        for keydir in genesis/validator-keys/${node_name}/keys/0x*; do
+          pubkey=$(basename "$keydir")
+          docker run --rm \
+            -v zama_lighthouse-vc-data:/data \
+            -v $(pwd)/genesis:/genesis:ro \
+            sigp/lighthouse:v6.0.1 \
+            lighthouse account validator import \
+            --reuse-password \
+            --testnet-dir=/genesis/cl --datadir=/data \
+            --keystore=/genesis/validator-keys/${node_name}/keys/$pubkey/voting-keystore.json \
+            --password-file=/genesis/validator-keys/${node_name}/secrets/$pubkey
+        done
         COMPOSE_PROFILES=validator docker compose --env-file /opt/zama/env up -d
       else
         COMPOSE_PROFILES=rpc docker compose --env-file /opt/zama/env up -d
@@ -111,7 +120,7 @@ write_files:
     permissions: "0644"
     content: |
       [Unit]
-      Description=Zama blockchain node
+      Description=Zama ethereum private node
       After=docker.service
       Requires=docker.service
 

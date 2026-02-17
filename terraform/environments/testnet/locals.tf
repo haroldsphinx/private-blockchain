@@ -21,14 +21,14 @@ locals {
 
   # Bootnode is always node-1
   bootnode_name = "node-1"
-  bootnode_eip  = aws_eip.blockchain[local.bootnode_name].public_ip
+  bootnode_ip   = aws_eip.ethereum_private_node[local.bootnode_name].public_ip
 
-  blockchain_cloud_init = {
-    for name, node in var.blockchain_nodes : name => templatefile(var.blockchain_cloud_init_file, {
+  ethereum_private_node_cloud_init = {
+    for name, node in var.ethereum_private_node_nodes : name => templatefile(var.ethereum_private_node_cloud_init_file, {
       node_name             = name
       node_role             = node.role
-      own_eip               = aws_eip.blockchain[name].public_ip
-      bootnode_eip          = local.bootnode_eip
+      host_ip               = aws_eip.ethereum_private_node[name].public_ip
+      bootnode_ip           = local.bootnode_ip
       bootnode_pubkey       = var.bootnode_pubkey
       bootnode_enr          = var.bootnode_enr
       monitoring_private_ip = module.monitoring_instance.private_ip

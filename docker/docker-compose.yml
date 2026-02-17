@@ -1,6 +1,6 @@
 services:
   geth:
-    image: ethereum/client-go:v1.15.2
+    image: ethereum/client-go:v1.16.8
     container_name: geth
     restart: unless-stopped
     command:
@@ -24,8 +24,8 @@ services:
       - --metrics
       - --metrics.addr=0.0.0.0
       - --metrics.port=6060
-      - --nat=extip:${OWN_EIP}
-      - --bootnodes=enode://${BOOTNODE_PUBKEY}@${BOOTNODE_EIP}:30303
+      - --nat=extip:${HOST_IP}
+      - --bootnodes=${GETH_BOOTNODES:-}
     ports:
       - "30303:30303"
       - "30303:30303/udp"
@@ -39,14 +39,13 @@ services:
       - ./genesis/jwt.hex:/jwt/jwt.hex:ro
 
   lighthouse-bn:
-    image: sigp/lighthouse:v6.0.1
+    image: sigp/lighthouse:v8.1.0
     container_name: lighthouse-bn
     restart: unless-stopped
     depends_on: [geth]
     command:
       - lighthouse
       - beacon_node
-      - --network=custom
       - --testnet-dir=/genesis/cl
       - --datadir=/data
       - --execution-endpoint=http://geth:8551
@@ -58,10 +57,10 @@ services:
       - --metrics-address=0.0.0.0
       - --metrics-port=5054
       - --port=9000
-      - --enr-address=${OWN_EIP}
+      - --enr-address=${HOST_IP}
       - --enr-udp-port=9000
       - --enr-tcp-port=9000
-      - --boot-nodes=${BOOTNODE_ENR}
+      - --boot-nodes=${LIGHTHOUSE_BOOTNODES:-}
     ports:
       - "9000:9000"
       - "9000:9000/udp"
@@ -73,7 +72,7 @@ services:
       - ./genesis/jwt.hex:/jwt/jwt.hex:ro
 
   lighthouse-vc:
-    image: sigp/lighthouse:v6.0.1
+    image: sigp/lighthouse:v8.1.0
     container_name: lighthouse-vc
     restart: unless-stopped
     profiles: ["validator"]
@@ -81,7 +80,6 @@ services:
     command:
       - lighthouse
       - validator_client
-      - --network=custom
       - --testnet-dir=/genesis/cl
       - --datadir=/data
       - --beacon-nodes=http://lighthouse-bn:5052

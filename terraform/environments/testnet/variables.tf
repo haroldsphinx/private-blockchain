@@ -46,8 +46,8 @@ variable "ssh_allowed_cidrs" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "blockchain_nodes" {
-  description = "map of blockchain nodes to create"
+variable "ethereum_private_node_nodes" {
+  description = "map of ethereum private node nodes to create"
   type = map(object({
     instance_type    = string
     root_volume_size = number
@@ -96,8 +96,8 @@ variable "key_pair_name" {
   default     = "zama"
 }
 
-variable "blockchain_cloud_init_file" {
-  description = "Path to the blockchain cloud-init configuration file."
+variable "ethereum_private_node_cloud_init_file" {
+  description = "Path to the ethereum private node cloud-init configuration file."
   type        = string
   default     = "./files/zama-pevm-testnet-cloud-init.yml.tmpl"
 }

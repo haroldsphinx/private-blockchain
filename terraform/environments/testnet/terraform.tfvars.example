@@ -1,7 +1,7 @@
 region            = "us-east-1"
-ssh_public_key_path = "~/.ssh/id_rsa.pub"
+ssh_public_key_path = "~/.ssh/id_ed25519.pub"
 key_pair_name     = "zama"
 
-github_repo     = "https://github.com/yourusername/zama-pevm-testnet.git"
+github_repo     = "https://github.com/haroldsphinx/private-blockchain"
 bootnode_pubkey = ""
 bootnode_enr    = ""

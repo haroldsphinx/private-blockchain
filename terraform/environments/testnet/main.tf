@@ -10,14 +10,14 @@ locals {
   )
 }
 
-data "cloudinit_config" "blockchain" {
-  for_each      = var.blockchain_nodes
+data "cloudinit_config" "ethereum_private_node" {
+  for_each      = var.ethereum_private_node_nodes
   gzip          = true
   base64_encode = true
 
   part {
     content_type = "text/cloud-config"
-    content      = local.blockchain_cloud_init[each.key]
+    content      = local.ethereum_private_node_cloud_init[each.key]
   }
 }
 
@@ -31,20 +31,20 @@ data "cloudinit_config" "monitoring" {
   }
 }
 
-module "blockchain_instance" {
-  for_each      = var.blockchain_nodes
+module "ethereum_private_node_instance" {
+  for_each      = var.ethereum_private_node_nodes
   source        = "../../modules/compute"
   name          = format("%s-%s-%s", local.project_name, each.key, var.environment)
   ami           = var.ami_id
   instance_type = each.value.instance_type
   subnet_id     = aws_subnet.public.id
   security_group_ids = [
-    aws_security_group.blockchain.id,
+    aws_security_group.ethereum_private_node.id,
   ]
 
   associate_public_ip_address = false
   root_volume_size            = each.value.root_volume_size
-  user_data_base64            = data.cloudinit_config.blockchain[each.key].rendered
+  user_data_base64            = data.cloudinit_config.ethereum_private_node[each.key].rendered
   environment                 = var.environment
   tags = merge(local.common_tags, {
     Role = each.value.role
@@ -72,14 +72,14 @@ module "monitoring_instance" {
   key_pair_name = local.resolved_key_pair_name
 }
 
-resource "aws_eip" "blockchain" {
-  for_each = var.blockchain_nodes
+resource "aws_eip" "ethereum_private_node" {
+  for_each = var.ethereum_private_node_nodes
   domain   = "vpc"
 
   tags = merge(
     local.common_tags,
     {
-      Name = "${local.project_name}-${each.key}-eip"
+      Name = "${local.project_name}-ethereum-private-node-${each.key}-eip"
     },
   )
 }
@@ -95,10 +95,10 @@ resource "aws_eip" "monitoring" {
   )
 }
 
-resource "aws_eip_association" "blockchain" {
-  for_each      = var.blockchain_nodes
-  instance_id   = module.blockchain_instance[each.key].instance_id
-  allocation_id = aws_eip.blockchain[each.key].id
+resource "aws_eip_association" "ethereum_private_node" {
+  for_each      = var.ethereum_private_node_nodes
+  instance_id   = module.ethereum_private_node_instance[each.key].instance_id
+  allocation_id = aws_eip.ethereum_private_node[each.key].id
 }
 
 resource "aws_eip_association" "monitoring" {
@@ -106,12 +106,12 @@ resource "aws_eip_association" "monitoring" {
   allocation_id = aws_eip.monitoring.id
 }
 
-output "blockchain_nodes" {
-  description = "Public and private IPs of blockchain nodes."
+output "ethereum_private_node_nodes" {
+  description = "Public and private IPs of ethereum private nodes."
   value = {
-    for name, node in var.blockchain_nodes : name => {
-      public_ip  = aws_eip.blockchain[name].public_ip
-      private_ip = module.blockchain_instance[name].private_ip
+    for name, node in var.ethereum_private_node_nodes : name => {
+      public_ip  = aws_eip.ethereum_private_node[name].public_ip
+      private_ip = module.ethereum_private_node_instance[name].private_ip
       role       = node.role
     }
   }
@@ -127,6 +127,6 @@ output "monitoring_private_ip" {
   value       = module.monitoring_instance.private_ip
 }
 
-output "bootnode_eip" {
-  value = aws_eip.blockchain["node-1"].public_ip
+output "bootnode_ip" {
+  value = aws_eip.ethereum_private_node["node-1"].public_ip
 }

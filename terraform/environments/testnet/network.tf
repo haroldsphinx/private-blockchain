@@ -59,9 +59,9 @@ resource "aws_route_table_association" "public_assoc" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_security_group" "blockchain" {
-  name_prefix = "${local.project_name}-blockchain-sg-"
-  description = "Blockchain node: geth, lighthouse, blockscout"
+resource "aws_security_group" "ethereum_private_node" {
+  name_prefix = "${local.project_name}-ethereum-private-node-sg-"
+  description = "Ethereum private node: geth, lighthouse, blockscout"
   vpc_id      = aws_vpc.main.id
 
   # SSH
@@ -181,7 +181,7 @@ resource "aws_security_group" "blockchain" {
   tags = merge(
     local.common_tags,
     {
-      Name = "${local.project_name}-blockchain-sg"
+      Name = "${local.project_name}-ethereum-private-node-sg"
     },
   )
 }
@@ -228,7 +228,7 @@ resource "aws_security_group" "monitoring" {
     protocol        = "tcp"
     from_port       = 3100
     to_port         = 3100
-    security_groups = [aws_security_group.blockchain.id]
+    security_groups = [aws_security_group.ethereum_private_node.id]
   }
 
   ingress {
@@ -236,7 +236,7 @@ resource "aws_security_group" "monitoring" {
     protocol        = "tcp"
     from_port       = 9090
     to_port         = 9090
-    security_groups = [aws_security_group.blockchain.id]
+    security_groups = [aws_security_group.ethereum_private_node.id]
   }
 
   egress {
