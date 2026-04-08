@@ -21,7 +21,7 @@ write_files:
       MONITORING_IP=${monitoring_private_ip}
       NETWORK_ID=12345
       GETH_BOOTNODES=${bootnode_pubkey != "" ? "enode://${bootnode_pubkey}@${bootnode_ip}:30303" : ""}
-      LIGHTHOUSE_BOOTNODES=${bootnode_enr}
+      LIGHTHOUSE_BOOTNODES=${node_name != "node-1" ? bootnode_enr : ""}
 
   - path: /opt/zama/telescope.yml
     permissions: "0644"
