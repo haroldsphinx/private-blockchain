@@ -6,8 +6,11 @@
 .env
 *.log
 .venv/
+venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 results/current/*
 !results/current/.gitkeep
 results/candidate/*
