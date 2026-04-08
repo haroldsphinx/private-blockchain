@@ -36,4 +36,4 @@ python3 "$REPO_ROOT/scripts/report/generate_report.py" \
   --candidate "$CANDIDATE_RUN_DIR" \
   --output-dir "$OUTPUT_DIR"
 
-echo "report written to $OUTPUT_DIR"
+echo "report written to $OUTPUT_DIR/report.md"

@@ -100,13 +100,16 @@ Each benchmark directory includes:
 
 Comparison output is written under `reports/<timestamp>/`:
 
-- `comparison.md`
-- `summary.json`
+- `report.md`
+- `summary.txt`
+- `results.json`
 
 Baseline report output is written under `reports/baseline-<timestamp>/`:
 
-- `baseline.md`
-- `baseline_summary.json`
+- `report.html`
+- `report.md`
+- `summary.txt`
+- `results.json`
 - `*.svg` charts
 
 ## Notes

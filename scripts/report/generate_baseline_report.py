@@ -357,9 +357,12 @@ def main() -> None:
         "benchmarks": benchmarks,
         "charts": chart_files,
     }
-    (output_dir / "baseline_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-    (output_dir / "baseline.md").write_text(render_markdown(run_dir, metadata, liveness, benchmarks, chart_files))
-    (output_dir / "baseline.html").write_text(render_html(run_dir, metadata, liveness, benchmarks, output_dir, chart_files))
+    report_markdown = render_markdown(run_dir, metadata, liveness, benchmarks, chart_files)
+    report_html = render_html(run_dir, metadata, liveness, benchmarks, output_dir, chart_files)
+    (output_dir / "results.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (output_dir / "report.md").write_text(report_markdown)
+    (output_dir / "summary.txt").write_text(report_markdown)
+    (output_dir / "report.html").write_text(report_html)
 
 
 def build_node_chart(samples_path: pathlib.Path, output_dir: pathlib.Path, column: str, title: str, y_label: str, filename: str) -> str:

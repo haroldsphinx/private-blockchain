@@ -179,7 +179,10 @@ def main() -> None:
         "candidate": candidate_run,
         "comparison": comparison,
     }
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (output_dir / "results.json").write_text(json.dumps(summary, indent=2) + "\n")
+    report_text = render_markdown(current_dir, candidate_dir, current_run, candidate_run, comparison)
+    (output_dir / "report.md").write_text(report_text)
+    (output_dir / "summary.txt").write_text(report_text)
     (output_dir / "comparison.md").write_text(
         render_markdown(current_dir, candidate_dir, current_run, candidate_run, comparison)
     )

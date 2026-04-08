@@ -31,4 +31,4 @@ python3 "$REPO_ROOT/scripts/report/generate_baseline_report.py" \
   --run "$RUN_DIR" \
   --output-dir "$OUTPUT_DIR"
 
-echo "baseline report written to $OUTPUT_DIR"
+echo "report written to $OUTPUT_DIR/report.html"
