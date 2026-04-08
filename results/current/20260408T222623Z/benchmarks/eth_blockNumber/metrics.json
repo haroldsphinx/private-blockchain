@@ -1,0 +1,52 @@
+{
+  "rows": [
+    {
+      "rate": 25,
+      "target_duration": 30,
+      "requests": 750,
+      "throughput": 24.86124699796817,
+      "mean": 0.233025677,
+      "p50": 0.217872688,
+      "p95": 0.295425315,
+      "p99": 0.427032703,
+      "success": 1.0,
+      "error_rate": 0.0,
+      "errors": [],
+      "status_codes": {
+        "200": 750
+      }
+    },
+    {
+      "rate": 100,
+      "target_duration": 30,
+      "requests": 3000,
+      "throughput": 98.94273272656025,
+      "mean": 0.241062481,
+      "p50": 0.22117473,
+      "p95": 0.307261508,
+      "p99": 0.484073045,
+      "success": 1.0,
+      "error_rate": 0.0,
+      "errors": [],
+      "status_codes": {
+        "200": 3000
+      }
+    },
+    {
+      "rate": 250,
+      "target_duration": 30,
+      "requests": 7500,
+      "throughput": 247.37548321038477,
+      "mean": 0.259251935,
+      "p50": 0.231732692,
+      "p95": 0.348115621,
+      "p99": 0.868534158,
+      "success": 1.0,
+      "error_rate": 0.0,
+      "errors": [],
+      "status_codes": {
+        "200": 7500
+      }
+    }
+  ]
+}

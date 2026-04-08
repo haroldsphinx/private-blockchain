@@ -1,0 +1,12 @@
+{
+  "ssh_host": "ubuntu@52.44.40.113",
+  "samples": 17,
+  "avg_cpu_percent": 8.616470588235295,
+  "peak_cpu_percent": 19.85,
+  "avg_mem_used_bytes": null,
+  "peak_mem_used_bytes": null,
+  "start_peer_count": 2,
+  "end_peer_count": 2,
+  "min_peer_count": 2,
+  "max_peer_count": 2
+}

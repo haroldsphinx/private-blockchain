@@ -1,0 +1,148 @@
+{
+  "flood_version": "0.3.1",
+  "dependency_versions": {},
+  "cli_args": [
+    "/Users/haroldsphinx/Documents/synched-docs/blockops/zama/scripts/benchmark/flood_rpc_benchmark.py",
+    "--rpc-url",
+    "http://52.44.40.113:8545",
+    "--method",
+    "eth_blockNumber",
+    "--label",
+    "current",
+    "--rates",
+    "25",
+    "100",
+    "250",
+    "--duration",
+    "30",
+    "--output-dir",
+    "/Users/haroldsphinx/Documents/synched-docs/blockops/zama/results/current/20260408T221507Z/benchmarks/eth_blockNumber",
+    "--workload-path",
+    "/Users/haroldsphinx/Documents/synched-docs/blockops/zama/results/current/20260408T221507Z/workload.json"
+  ],
+  "type": "single_test",
+  "t_run_start": 1775686508.240308,
+  "t_run_end": 1775686600.503118,
+  "nodes": {
+    "current": {
+      "name": "current",
+      "url": "http://52.44.40.113:8545",
+      "remote": null,
+      "client_version": null,
+      "network": null
+    }
+  },
+  "results": {
+    "current": {
+      "target_rate": [
+        25,
+        100,
+        250
+      ],
+      "actual_rate": [
+        25.03321594841155,
+        100.03131146767791,
+        250.03066764488966
+      ],
+      "target_duration": [
+        30,
+        30,
+        30
+      ],
+      "actual_duration": [
+        29.96019375,
+        29.9906095,
+        29.996320334
+      ],
+      "requests": [
+        750,
+        3000,
+        7500
+      ],
+      "throughput": [
+        24.865147224193755,
+        98.94059400197632,
+        248.24259687069923
+      ],
+      "success": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        0.190883125,
+        0.192406042,
+        0.190596042
+      ],
+      "mean": [
+        0.242949134,
+        0.242140478,
+        0.249050036
+      ],
+      "p50": [
+        0.224032171,
+        0.226184802,
+        0.237980918
+      ],
+      "p90": [
+        0.291668591,
+        0.292847835,
+        0.300596476
+      ],
+      "p95": [
+        0.311925698,
+        0.308552872,
+        0.353809199
+      ],
+      "p99": [
+        0.514715801,
+        0.417330389,
+        0.426272767
+      ],
+      "max": [
+        0.815524583,
+        0.828493333,
+        1.033000208
+      ],
+      "status_codes": [
+        {
+          "200": 750
+        },
+        {
+          "200": 3000
+        },
+        {
+          "200": 7500
+        }
+      ],
+      "errors": [
+        [],
+        [],
+        []
+      ],
+      "first_request_timestamp": [
+        "2026-04-08T23:15:08.547132042+01:00",
+        "2026-04-08T23:15:39.105397083+01:00",
+        "2026-04-08T23:16:10.239810875+01:00"
+      ],
+      "last_request_timestamp": [
+        "2026-04-08T23:15:38.507325792+01:00",
+        "2026-04-08T23:16:09.096006583+01:00",
+        "2026-04-08T23:16:40.236131209+01:00"
+      ],
+      "last_response_timestamp": [
+        "2026-04-08T23:15:38.709833+01:00",
+        "2026-04-08T23:16:09.426621958+01:00",
+        "2026-04-08T23:16:40.452192209+01:00"
+      ],
+      "final_wait_time": [
+        0.202507208,
+        0.330615375,
+        0.216061
+      ],
+      "deep_raw_output": null,
+      "deep_metrics": null,
+      "deep_rpc_error_pairs": null
+    }
+  }
+}

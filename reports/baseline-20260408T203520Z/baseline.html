@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Baseline Benchmark Report</title>
+<style>body{font-family:Georgia,serif;max-width:1100px;margin:40px auto;padding:0 20px;color:#1f2933;line-height:1.5;}h1,h2,h3{font-family:Menlo,monospace;}table{border-collapse:collapse;width:100%;margin:16px 0 24px;}th,td{border:1px solid #d9e2ec;padding:8px 10px;text-align:right;font-family:Menlo,monospace;font-size:13px;}th:first-child,td:first-child{text-align:left;}.meta li{margin:4px 0;}.chart{margin:20px 0 32px;border:1px solid #d9e2ec;padding:12px;background:#fff;}.note{background:#f8fafc;border-left:4px solid #0b7285;padding:12px 14px;}</style></head><body>
+<h1>Baseline Benchmark Report</h1>
+<ul class='meta'>
+<li><strong>Run directory:</strong> <code>results/current/20260408T195122Z</code></li>
+<li><strong>EL client:</strong> <code>Geth/v1.16.8-stable-abeb78c6/linux-amd64/go1.24.11</code></li>
+<li><strong>CL client:</strong> <code>Lighthouse/v8.1.0-edba56b/x86_64-linux</code></li>
+<li><strong>Target RPC URL:</strong> <code>http://52.44.40.113:8545</code></li>
+<li><strong>Request rates:</strong> <code>[25, 100, 250]</code></li>
+<li><strong>Duration per rate:</strong> <code>30</code> seconds</li>
+</ul>
+<div class='note'>This baseline is the pre-upgrade performance profile of the currently deployed network. It shows RPC behavior under fixed-rate load and whether the chain kept advancing while that load was applied.</div>
+<h2>Liveness</h2>
+<ul class='meta'>
+<li><strong>Starting block:</strong> <code>384</code></li>
+<li><strong>Ending block:</strong> <code>399</code></li>
+<li><strong>Block delta during run:</strong> <code>15</code></li>
+<li><strong>Average seconds per observed block increase:</strong> <code>12.0592</code></li>
+<li><strong>Stall detected:</strong> <code>no</code></li>
+</ul>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>chain progression</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>seconds since benchmark start</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>block height</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>0</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>384.00</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>45</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>387.75</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>90</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>391.50</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>136</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>395.25</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>181</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>399.00</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,280.00 81.47,262.67 106.76,262.67 131.61,262.67 156.77,245.33 181.57,245.33 206.45,228.00 231.19,228.00 256.20,210.67 280.94,210.67 305.88,193.33 331.09,193.33 356.00,176.00 381.36,176.00 406.34,158.67 431.89,158.67 456.56,158.67 481.56,141.33 506.45,141.33 531.26,124.00 556.22,124.00 580.88,106.67 605.76,106.67 630.55,89.33 655.92,89.33 680.87,72.00 705.52,72.00 730.33,72.00 755.16,54.67 780.09,54.67 805.02,37.33 830.25,37.33 855.23,20.00 880.00,20.00'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>block height</text>
+</svg>
+</div>
+<h2>RPC Metrics</h2>
+<h3>eth_blockNumber</h3>
+<table><thead><tr><th>Rate</th><th>Mean</th><th>p50</th><th>p95</th><th>p99</th><th>Throughput</th><th>Error Rate</th></tr></thead><tbody>
+<tr><td>25</td><td>0.2503</td><td>0.2395</td><td>0.3314</td><td>0.4513</td><td>24.8178</td><td>0.0000</td></tr>
+<tr><td>100</td><td>0.2454</td><td>0.2338</td><td>0.3170</td><td>0.4162</td><td>99.3384</td><td>0.0000</td></tr>
+<tr><td>250</td><td>0.2669</td><td>0.2580</td><td>0.3637</td><td>0.4674</td><td>245.8383</td><td>0.0000</td></tr>
+</tbody></table>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_blockNumber latency profile</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>seconds</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>0.25</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>0.30</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>0.36</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>0.41</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>0.47</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,274.21 330.67,280.00 880.00,254.84'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>mean</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,179.23 330.67,196.09 880.00,141.40'/>
+<line x1='198' y1='32' x2='216' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='222' y='36' font-size='11' font-family='monospace'>p95</text>
+<polyline fill='none' stroke='#2b8a3e' stroke-width='2' points='56.00,38.91 330.67,79.98 880.00,20.00'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#2b8a3e' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>p99</text>
+</svg>
+</div>
+<h3>eth_getBlockByNumber</h3>
+<table><thead><tr><th>Rate</th><th>Mean</th><th>p50</th><th>p95</th><th>p99</th><th>Throughput</th><th>Error Rate</th></tr></thead><tbody>
+<tr><td>25</td><td>0.2408</td><td>0.2276</td><td>0.3139</td><td>0.4258</td><td>24.8249</td><td>0.0000</td></tr>
+<tr><td>100</td><td>0.2435</td><td>0.2261</td><td>0.3087</td><td>0.4467</td><td>97.9881</td><td>0.0000</td></tr>
+<tr><td>250</td><td>0.2435</td><td>0.2262</td><td>0.3143</td><td>0.4349</td><td>247.2550</td><td>0.0000</td></tr>
+</tbody></table>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_getBlockByNumber latency profile</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>seconds</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>0.24</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>0.29</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>0.34</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>0.40</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>0.45</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,280.00 330.67,276.61 880.00,276.55'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>mean</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,187.72 330.67,194.27 880.00,187.18'/>
+<line x1='198' y1='32' x2='216' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='222' y='36' font-size='11' font-family='monospace'>p95</text>
+<polyline fill='none' stroke='#2b8a3e' stroke-width='2' points='56.00,46.36 330.67,20.00 880.00,34.88'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#2b8a3e' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>p99</text>
+</svg>
+</div>
+<h3>Throughput Across Tests</h3>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>throughput profile</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>target requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>observed throughput</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>24.82</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>80.43</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>136.04</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>191.65</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>247.25</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,280.00 330.67,192.90 880.00,21.66'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>eth_blockNumber</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,279.99 330.67,194.47 880.00,20.00'/>
+<line x1='198' y1='32' x2='216' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='222' y='36' font-size='11' font-family='monospace'>eth_getBlockByNumber</text>
+</svg>
+</div>
+</body></html>

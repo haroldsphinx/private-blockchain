@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  BLOCKCHAIN_IP: "13.219.67.115"
+  BLOCKCHAIN_IP: "52.44.40.113"
   RPC_PORT: 8545
 
 jobs:

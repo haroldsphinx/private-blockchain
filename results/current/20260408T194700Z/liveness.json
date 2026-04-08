@@ -1,0 +1,12 @@
+{
+  "rpc_url": "http://52.44.40.113:8545",
+  "poll_interval_seconds": 5,
+  "stall_threshold_seconds": 60,
+  "samples": 21,
+  "starting_block": 362,
+  "ending_block": 371,
+  "block_delta": 9,
+  "average_seconds_per_observed_block": 12.204859097798666,
+  "longest_stall_seconds": 16.448555946350098,
+  "stall_detected": false
+}
