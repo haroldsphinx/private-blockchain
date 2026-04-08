@@ -55,6 +55,13 @@ curl -s http://<RPC_IP>:8545 -X POST -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","id":1}'
 ```
 
+Or run the readiness gate before benchmarking:
+
+```sh
+chmod +x scripts/readiness-check.sh
+./scripts/readiness-check.sh
+```
+
 ## Teardown
 
 ```sh
