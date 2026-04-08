@@ -55,6 +55,12 @@ curl -s http://<RPC_IP>:8545 -X POST -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","id":1}'
 ```
 
+## Benchmarking
+
+The benchmark workflow lives under [scripts/benchmark/README.md](/Users/haroldsphinx/Documents/synched-docs/blockops/zama/scripts/benchmark/README.md).
+
+It benchmarks the deployed RPC endpoint, records chain progression separately, stores raw results under `results/`, and generates side-by-side comparison reports under `reports/`.
+
 ## Teardown
 
 ```sh

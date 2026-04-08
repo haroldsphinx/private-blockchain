@@ -1,0 +1,130 @@
+name: Benchmark RPC Comparison
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag or ref to benchmark against the latest main baseline"
+        required: true
+        type: string
+
+env:
+  BENCHMARK_RPC_URL: "http://52.44.40.113:8545"
+  BENCHMARK_CL_URL: "http://54.175.18.52:5052"
+  BENCHMARK_SSH_HOST: "ubuntu@52.44.40.113"
+  BENCHMARK_TARGET_NODE_LABEL: "node-3"
+  BENCHMARK_RATES: "25 100 250"
+  BENCHMARK_DURATION: "30"
+  BENCHMARK_POLL_INTERVAL: "5"
+  BENCHMARK_STALL_THRESHOLD: "60"
+
+jobs:
+  baseline:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Main
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install Flood
+        run: pip install paradigm-flood
+
+      - name: Install Vegeta
+        run: go install github.com/tsenart/vegeta@latest
+
+      - name: Add Go Bin to PATH
+        run: echo "$HOME/go/bin" >> "$GITHUB_PATH"
+
+      - name: Run Main Baseline Benchmark
+        run: ./scripts/benchmark/run.sh current
+
+      - name: Resolve Baseline Run Directory
+        id: baseline_run
+        run: echo "dir=$(find results/current -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Baseline Report
+        run: ./scripts/benchmark/report.sh "${{ steps.baseline_run.outputs.dir }}"
+
+      - name: Upload Latest Baseline Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-baseline
+          path: |
+            results/current
+            reports/baseline-*
+
+  compare:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Requested Ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install Flood
+        run: pip install paradigm-flood
+
+      - name: Install Vegeta
+        run: go install github.com/tsenart/vegeta@latest
+
+      - name: Add Go Bin to PATH
+        run: echo "$HOME/go/bin" >> "$GITHUB_PATH"
+
+      - name: Download Latest Main Baseline
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: benchmark.yml
+          branch: main
+          name: benchmark-baseline
+          path: .baseline
+          if_no_artifact_found: fail
+
+      - name: Resolve Downloaded Baseline Run Directory
+        id: baseline_run
+        run: echo "dir=$(find .baseline/results/current -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Run Candidate Benchmark Against Same Workload
+        run: ./scripts/benchmark/run.sh candidate "${{ steps.baseline_run.outputs.dir }}"
+
+      - name: Resolve Candidate Run Directory
+        id: candidate_run
+        run: echo "dir=$(find results/candidate -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Compare Baseline To Candidate
+        run: ./scripts/benchmark/compare.sh "${{ steps.baseline_run.outputs.dir }}" "${{ steps.candidate_run.outputs.dir }}"
+
+      - name: Upload Comparison Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-comparison-${{ inputs.tag }}
+          path: |
+            .baseline/results/current
+            results/candidate
+            reports

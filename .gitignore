@@ -5,3 +5,12 @@
 !terraform.tfvars.example
 .env
 *.log
+.venv/
+__pycache__/
+*.pyc
+results/current/*
+!results/current/.gitkeep
+results/candidate/*
+!results/candidate/.gitkeep
+reports/*
+!reports/.gitkeep
