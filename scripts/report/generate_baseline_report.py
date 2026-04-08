@@ -124,7 +124,6 @@ def build_latency_chart(test_name: str, rows: list[dict], output_dir: pathlib.Pa
         series={
             "mean": [row.get("mean") for row in rows],
             "p95": [row.get("p95") for row in rows],
-            "p99": [row.get("p99") for row in rows],
         },
         x_label="requests per second",
         y_label="seconds",
@@ -224,16 +223,15 @@ def render_markdown(run_dir: pathlib.Path, metadata: dict, liveness: dict, bench
     for test_name, benchmark in benchmarks.items():
         lines.append(f"### {test_name}")
         lines.append("")
-        lines.append("| Rate | Mean | p50 | p95 | p99 | Throughput | Error Rate |")
-        lines.append("| ---: | ---: | ---: | ---: | ---: | ---: | ---: |")
+        lines.append("| Rate | Mean | p50 | p95 | Throughput | Error Rate |")
+        lines.append("| ---: | ---: | ---: | ---: | ---: | ---: |")
         for row in benchmark["rows"]:
             lines.append(
-                "| {rate} | {mean} | {p50} | {p95} | {p99} | {throughput} | {error_rate} |".format(
+                "| {rate} | {mean} | {p50} | {p95} | {throughput} | {error_rate} |".format(
                     rate=row["rate"],
                     mean=format_number(row.get("mean")),
                     p50=format_number(row.get("p50")),
                     p95=format_number(row.get("p95")),
-                    p99=format_number(row.get("p99")),
                     throughput=format_number(row.get("throughput")),
                     error_rate=format_number(row.get("error_rate")),
                 )
@@ -305,7 +303,7 @@ def render_html(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmark
     parts.append("<h2>RPC Metrics</h2>")
     for test_name, benchmark in benchmarks.items():
         parts.append(f"<h3>{test_name}</h3>")
-        parts.append("<table><thead><tr><th>Rate</th><th>Mean</th><th>p50</th><th>p95</th><th>p99</th><th>Throughput</th><th>Error Rate</th></tr></thead><tbody>")
+        parts.append("<table><thead><tr><th>Rate</th><th>Mean</th><th>p50</th><th>p95</th><th>Throughput</th><th>Error Rate</th></tr></thead><tbody>")
         for row in benchmark["rows"]:
             parts.append(
                 "<tr>"
@@ -313,7 +311,6 @@ def render_html(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmark
                 f"<td>{format_number(row.get('mean'))}</td>"
                 f"<td>{format_number(row.get('p50'))}</td>"
                 f"<td>{format_number(row.get('p95'))}</td>"
-                f"<td>{format_number(row.get('p99'))}</td>"
                 f"<td>{format_number(row.get('throughput'))}</td>"
                 f"<td>{format_number(row.get('error_rate'))}</td>"
                 "</tr>"

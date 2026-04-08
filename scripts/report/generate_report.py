@@ -7,8 +7,8 @@ import math
 import pathlib
 
 
-COMPARISON_METRICS = ["mean", "p50", "p95", "p99", "throughput", "error_rate"]
-LOWER_IS_BETTER = {"mean", "p50", "p95", "p99", "error_rate"}
+COMPARISON_METRICS = ["mean", "p50", "p95", "throughput", "error_rate"]
+LOWER_IS_BETTER = {"mean", "p50", "p95", "error_rate"}
 UNCHANGED_RELATIVE_THRESHOLD = 0.02
 
 

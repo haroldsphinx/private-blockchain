@@ -10,6 +10,7 @@ import time
 import urllib.request
 
 import flood
+from flood.tests.load_tests import vegeta as flood_vegeta
 
 
 def rpc_call(url: str, method: str, params: list[object] | None = None) -> dict:
@@ -132,7 +133,6 @@ def summarize_result(result: dict) -> dict:
                 "mean": result["mean"][index],
                 "p50": result["p50"][index],
                 "p95": result["p95"][index],
-                "p99": result["p99"][index],
                 "success": success,
                 "error_rate": error_rate,
                 "errors": result["errors"][index],
@@ -165,10 +165,81 @@ def save_results_payload(
     return payload
 
 
+def latency_value(latencies: dict, *keys: str) -> float | None:
+    for key in keys:
+        value = latencies.get(key)
+        if value is not None:
+            return value / 1e9
+    return None
+
+
+def patch_flood_vegeta_parser() -> None:
+    def _create_vegeta_report_compat(
+        attack_output: bytes,
+        target_rate: int,
+        target_duration: int,
+        include_deep_output,
+        calls,
+    ) -> dict:
+        import json
+        import subprocess
+
+        cmd = "vegeta report -type json"
+        report_output = (
+            subprocess.check_output(cmd.split(" "), input=attack_output)
+            .decode()
+            .strip()
+        )
+        report = json.loads(report_output)
+        latencies = report.get("latencies", {})
+
+        deep_raw_output = None
+        deep_metrics = None
+        deep_rpc_error_pairs = None
+        if include_deep_output is None:
+            include_deep_output = []
+        if "raw" in include_deep_output:
+            deep_raw_output = flood_vegeta.deep_utils.encode_raw_vegeta_output(attack_output)
+        if "metrics" in include_deep_output:
+            deep_metrics, deep_rpc_error_pairs = flood_vegeta.deep_utils.compute_deep_datum(
+                raw_output=attack_output,
+                target_rate=target_rate,
+                target_duration=target_duration,
+                calls=calls,
+            )
+
+        return {
+            "target_rate": target_rate,
+            "actual_rate": report.get("rate"),
+            "target_duration": target_duration,
+            "actual_duration": report.get("duration", 0) / 1e9 if report.get("duration") is not None else None,
+            "requests": report.get("requests", 0),
+            "throughput": report.get("throughput"),
+            "success": float(report["success"]) if report.get("success") is not None else None,
+            "min": latency_value(latencies, "min"),
+            "mean": latency_value(latencies, "mean"),
+            "p50": latency_value(latencies, "50th", "p50"),
+            "p95": latency_value(latencies, "95th", "p95"),
+            "max": latency_value(latencies, "max"),
+            "status_codes": report.get("status_codes", {}),
+            "errors": report.get("errors", []),
+            "first_request_timestamp": report.get("earliest"),
+            "last_request_timestamp": report.get("latest"),
+            "last_response_timestamp": report.get("end"),
+            "final_wait_time": report.get("wait", 0) / 1e9 if report.get("wait") is not None else None,
+            "deep_raw_output": deep_raw_output,
+            "deep_metrics": deep_metrics,
+            "deep_rpc_error_pairs": deep_rpc_error_pairs,
+        }
+
+    flood_vegeta._create_vegeta_report = _create_vegeta_report_compat
+
+
 def main() -> None:
     args = parse_args()
     output_dir = pathlib.Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    patch_flood_vegeta_parser()
 
     workload = load_or_create_workload(args)
     calls = build_calls(args.method, workload)
