@@ -58,7 +58,10 @@ def svg_polyline_chart(
         if value is not None
     ]
     if not x_values or not valid_y:
-        return f"<svg xmlns='http://www.w3.org/2000/svg' width='{SVG_WIDTH}' height='{SVG_HEIGHT}'><text x='20' y='40'>{title}: no data</text></svg>\n"
+        return (
+            f"<svg xmlns='http://www.w3.org/2000/svg' width='{SVG_WIDTH}' height='{SVG_HEIGHT}'>"
+            f"<text x='20' y='40'>{title}: no data</text></svg>"
+        )
 
     x_min = min(x_values)
     x_max = max(x_values)
@@ -113,14 +116,13 @@ def svg_polyline_chart(
         parts.append(f"<text x='{legend_x + 24}' y='{legend_y + 4}' font-size='11' font-family='monospace'>{name}</text>")
 
     parts.append("</svg>")
-    return "\n".join(parts) + "\n"
+    return "\n".join(parts)
 
 
-def build_latency_chart(test_name: str, rows: list[dict], output_dir: pathlib.Path) -> str:
-    x_values = [row["rate"] for row in rows]
-    svg = svg_polyline_chart(
+def build_latency_chart(test_name: str, rows: list[dict]) -> str:
+    return svg_polyline_chart(
         title=f"{test_name} latency profile",
-        x_values=x_values,
+        x_values=[row["rate"] for row in rows],
         series={
             "mean": [row.get("mean") for row in rows],
             "p95": [row.get("p95") for row in rows],
@@ -128,35 +130,28 @@ def build_latency_chart(test_name: str, rows: list[dict], output_dir: pathlib.Pa
         x_label="requests per second",
         y_label="seconds",
     )
-    filename = f"{test_name}_latency.svg"
-    (output_dir / filename).write_text(svg)
-    return filename
 
 
-def build_throughput_chart(benchmarks: dict, output_dir: pathlib.Path) -> str:
+def build_throughput_chart(benchmarks: dict) -> str:
     rows_by_test = {test_name: data["rows"] for test_name, data in benchmarks.items()}
     rate_set = sorted({row["rate"] for rows in rows_by_test.values() for row in rows})
     series = {}
     for test_name, rows in rows_by_test.items():
         rows_by_rate = {row["rate"]: row for row in rows}
         series[test_name] = [rows_by_rate.get(rate, {}).get("throughput") for rate in rate_set]
-    svg = svg_polyline_chart(
+    return svg_polyline_chart(
         title="throughput profile",
         x_values=rate_set,
         series=series,
         x_label="target requests per second",
         y_label="observed throughput",
     )
-    filename = "throughput.svg"
-    (output_dir / filename).write_text(svg)
-    return filename
 
 
-def build_liveness_chart(samples_path: pathlib.Path, output_dir: pathlib.Path) -> str:
+def build_liveness_chart(samples_path: pathlib.Path) -> str:
     timestamps = []
     heights = []
-    lines = samples_path.read_text().splitlines()[1:]
-    for line in lines:
+    for line in samples_path.read_text().splitlines()[1:]:
         if not line.strip():
             continue
         timestamp, height = line.split(",")
@@ -165,91 +160,44 @@ def build_liveness_chart(samples_path: pathlib.Path, output_dir: pathlib.Path) -
     if timestamps:
         start = timestamps[0]
         timestamps = [timestamp - start for timestamp in timestamps]
-    svg = svg_polyline_chart(
+    return svg_polyline_chart(
         title="chain progression",
         x_values=timestamps or [0.0],
         series={"block height": heights or [0.0]},
         x_label="seconds since benchmark start",
         y_label="block height",
     )
-    filename = "liveness.svg"
-    (output_dir / filename).write_text(svg)
-    return filename
 
 
-def render_markdown(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmarks: dict, chart_files: dict[str, str]) -> str:
-    lines = []
-    lines.append("# Baseline Benchmark Report")
-    lines.append("")
-    lines.append(f"- Run directory: `{run_dir}`")
-    lines.append(f"- EL client: `{metadata.get('el_client_version')}`")
-    lines.append(f"- CL client: `{metadata.get('cl_client_version')}`")
-    lines.append(f"- Target RPC URL: `{metadata.get('target_rpc_url')}`")
-    lines.append(f"- Request rates: `{metadata.get('request_rates')}`")
-    lines.append(f"- Duration per rate: `{metadata.get('benchmark_duration_seconds')}` seconds")
-    lines.append("")
-    lines.append("## Summary")
-    lines.append("")
-    lines.append("This run captures the pre-upgrade behavior of the deployed RPC node under fixed-rate load.")
-    lines.append("")
-    lines.append("## Liveness")
-    lines.append("")
-    lines.append(f"- Starting block: `{liveness.get('starting_block')}`")
-    lines.append(f"- Ending block: `{liveness.get('ending_block')}`")
-    lines.append(f"- Block delta during run: `{liveness.get('block_delta')}`")
-    lines.append(f"- Average seconds per observed block increase: `{format_number(liveness.get('average_seconds_per_observed_block'))}`")
-    lines.append(f"- Stall detected: `{'yes' if liveness.get('stall_detected') else 'no'}`")
-    lines.append("")
-    lines.append(f"![Chain progression](./{chart_files['liveness']})")
-    lines.append("")
-    node_metrics = metadata.get("node_metrics")
-    if node_metrics is not None:
-        lines.append("## Node Metrics")
-        lines.append("")
-        lines.append(f"- Average CPU %: `{format_number(node_metrics.get('avg_cpu_percent'))}`")
-        lines.append(f"- Peak CPU %: `{format_number(node_metrics.get('peak_cpu_percent'))}`")
-        lines.append(f"- Average memory: `{format_bytes(node_metrics.get('avg_mem_used_bytes'))}`")
-        lines.append(f"- Peak memory: `{format_bytes(node_metrics.get('peak_mem_used_bytes'))}`")
-        lines.append(f"- Start peers: `{format_number(node_metrics.get('start_peer_count'))}`")
-        lines.append(f"- End peers: `{format_number(node_metrics.get('end_peer_count'))}`")
-        lines.append(f"- Minimum peers: `{format_number(node_metrics.get('min_peer_count'))}`")
-        lines.append("")
-        lines.append(f"![Node CPU](./{chart_files['node_cpu']})")
-        lines.append("")
-        lines.append(f"![Peer count](./{chart_files['node_peers']})")
-        lines.append("")
-    lines.append("## RPC Metrics")
-    lines.append("")
-    for test_name, benchmark in benchmarks.items():
-        lines.append(f"### {test_name}")
-        lines.append("")
-        lines.append("| Rate | Mean | p50 | p95 | Throughput | Error Rate |")
-        lines.append("| ---: | ---: | ---: | ---: | ---: | ---: |")
-        for row in benchmark["rows"]:
-            lines.append(
-                "| {rate} | {mean} | {p50} | {p95} | {throughput} | {error_rate} |".format(
-                    rate=row["rate"],
-                    mean=format_number(row.get("mean")),
-                    p50=format_number(row.get("p50")),
-                    p95=format_number(row.get("p95")),
-                    throughput=format_number(row.get("throughput")),
-                    error_rate=format_number(row.get("error_rate")),
-                )
-            )
-        lines.append("")
-        lines.append(f"![{test_name} latency](./{chart_files[test_name]})")
-        lines.append("")
-    lines.append("### Throughput Across Tests")
-    lines.append("")
-    lines.append(f"![Throughput](./{chart_files['throughput']})")
-    lines.append("")
-    return "\n".join(lines) + "\n"
+def build_node_chart(samples_path: pathlib.Path, column: str, title: str, y_label: str) -> str:
+    timestamps = []
+    values = []
+    for line in samples_path.read_text().splitlines()[1:]:
+        if not line.strip():
+            continue
+        parts = line.split(",")
+        row = {
+            "timestamp": float(parts[0]),
+            "cpu_percent": float(parts[1]),
+            "mem_used_bytes": float(parts[2]),
+            "mem_limit_bytes": float(parts[3]),
+            "peer_count": float(parts[4]),
+        }
+        timestamps.append(row["timestamp"])
+        values.append(row[column])
+    if timestamps:
+        start = timestamps[0]
+        timestamps = [timestamp - start for timestamp in timestamps]
+    return svg_polyline_chart(
+        title=title,
+        x_values=timestamps or [0.0],
+        series={column: values or [0.0]},
+        x_label="seconds since benchmark start",
+        y_label=y_label,
+    )
 
 
-def render_html(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmarks: dict, output_dir: pathlib.Path, chart_files: dict[str, str]) -> str:
-    def read_chart(name: str) -> str:
-        return (output_dir / chart_files[name]).read_text()
-
+def render_html(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmarks: dict, charts: dict[str, str]) -> str:
     parts = []
     parts.append("<!doctype html>")
     parts.append("<html lang='en'><head><meta charset='utf-8'>")
@@ -285,7 +233,7 @@ def render_html(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmark
     parts.append(f"<li><strong>Average seconds per observed block increase:</strong> <code>{format_number(liveness.get('average_seconds_per_observed_block'))}</code></li>")
     parts.append(f"<li><strong>Stall detected:</strong> <code>{'yes' if liveness.get('stall_detected') else 'no'}</code></li>")
     parts.append("</ul>")
-    parts.append(f"<div class='chart'>{read_chart('liveness')}</div>")
+    parts.append(f"<div class='chart'>{charts['liveness']}</div>")
     node_metrics = metadata.get("node_metrics")
     if node_metrics is not None:
         parts.append("<h2>Node Metrics</h2>")
@@ -298,8 +246,8 @@ def render_html(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmark
         parts.append(f"<li><strong>End peers:</strong> <code>{format_number(node_metrics.get('end_peer_count'))}</code></li>")
         parts.append(f"<li><strong>Minimum peers:</strong> <code>{format_number(node_metrics.get('min_peer_count'))}</code></li>")
         parts.append("</ul>")
-        parts.append(f"<div class='chart'>{read_chart('node_cpu')}</div>")
-        parts.append(f"<div class='chart'>{read_chart('node_peers')}</div>")
+        parts.append(f"<div class='chart'>{charts['node_cpu']}</div>")
+        parts.append(f"<div class='chart'>{charts['node_peers']}</div>")
     parts.append("<h2>RPC Metrics</h2>")
     for test_name, benchmark in benchmarks.items():
         parts.append(f"<h3>{test_name}</h3>")
@@ -316,9 +264,9 @@ def render_html(run_dir: pathlib.Path, metadata: dict, liveness: dict, benchmark
                 "</tr>"
             )
         parts.append("</tbody></table>")
-        parts.append(f"<div class='chart'>{read_chart(test_name)}</div>")
+        parts.append(f"<div class='chart'>{charts[test_name]}</div>")
     parts.append("<h3>Throughput Across Tests</h3>")
-    parts.append(f"<div class='chart'>{read_chart('throughput')}</div>")
+    parts.append(f"<div class='chart'>{charts['throughput']}</div>")
     parts.append("</body></html>")
     return "\n".join(parts) + "\n"
 
@@ -338,59 +286,23 @@ def main() -> None:
         if benchmark_dir.is_dir():
             benchmarks[benchmark_dir.name] = load_json(benchmark_dir / "metrics.json")
 
-    chart_files: dict[str, str] = {}
+    charts: dict[str, str] = {}
     for test_name, benchmark in benchmarks.items():
-        chart_files[test_name] = build_latency_chart(test_name, benchmark["rows"], output_dir)
-    chart_files["throughput"] = build_throughput_chart(benchmarks, output_dir)
-    chart_files["liveness"] = build_liveness_chart(run_dir / "liveness_samples.csv", output_dir)
+        charts[test_name] = build_latency_chart(test_name, benchmark["rows"])
+    charts["throughput"] = build_throughput_chart(benchmarks)
+    charts["liveness"] = build_liveness_chart(run_dir / "liveness_samples.csv")
     if node_metrics is not None:
-        chart_files["node_cpu"] = build_node_chart(run_dir / "node_metrics_samples.csv", output_dir, "cpu_percent", "geth CPU usage", "CPU %", "node_cpu.svg")
-        chart_files["node_peers"] = build_node_chart(run_dir / "node_metrics_samples.csv", output_dir, "peer_count", "peer count during benchmark", "peer count", "node_peers.svg")
+        charts["node_cpu"] = build_node_chart(run_dir / "node_metrics_samples.csv", "cpu_percent", "geth CPU usage", "CPU %")
+        charts["node_peers"] = build_node_chart(run_dir / "node_metrics_samples.csv", "peer_count", "peer count during benchmark", "peer count")
     metadata["node_metrics"] = node_metrics
 
     summary = {
         "metadata": metadata,
         "liveness": liveness,
         "benchmarks": benchmarks,
-        "charts": chart_files,
     }
-    report_markdown = render_markdown(run_dir, metadata, liveness, benchmarks, chart_files)
-    report_html = render_html(run_dir, metadata, liveness, benchmarks, output_dir, chart_files)
     (output_dir / "results.json").write_text(json.dumps(summary, indent=2) + "\n")
-    (output_dir / "report.md").write_text(report_markdown)
-    (output_dir / "summary.txt").write_text(report_markdown)
-    (output_dir / "report.html").write_text(report_html)
-
-
-def build_node_chart(samples_path: pathlib.Path, output_dir: pathlib.Path, column: str, title: str, y_label: str, filename: str) -> str:
-    lines = samples_path.read_text().splitlines()[1:]
-    timestamps = []
-    values = []
-    for line in lines:
-        if not line.strip():
-            continue
-        parts = line.split(",")
-        row = {
-            "timestamp": float(parts[0]),
-            "cpu_percent": float(parts[1]),
-            "mem_used_bytes": float(parts[2]),
-            "mem_limit_bytes": float(parts[3]),
-            "peer_count": float(parts[4]),
-        }
-        timestamps.append(row["timestamp"])
-        values.append(row[column])
-    if timestamps:
-        start = timestamps[0]
-        timestamps = [timestamp - start for timestamp in timestamps]
-    svg = svg_polyline_chart(
-        title=title,
-        x_values=timestamps or [0.0],
-        series={column: values or [0.0]},
-        x_label="seconds since benchmark start",
-        y_label=y_label,
-    )
-    (output_dir / filename).write_text(svg)
-    return filename
+    (output_dir / "report.html").write_text(render_html(run_dir, metadata, liveness, benchmarks, charts))
 
 
 if __name__ == "__main__":
