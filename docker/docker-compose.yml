@@ -57,6 +57,8 @@ services:
       - --metrics-address=0.0.0.0
       - --metrics-port=5054
       - --port=9000
+      # Required for this custom testnet when syncing from the committed genesis state.
+      - --allow-insecure-genesis-sync
       - --enr-address=${HOST_IP}
       - --enr-udp-port=9000
       - --enr-tcp-port=9000
