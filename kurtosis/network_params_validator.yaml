@@ -11,9 +11,6 @@ network_params:
   fulu_fork_epoch: 18446744073709551615
   electra_fork_epoch: 0
 
-additional_services:
-  - prometheus_grafana
-
 port_publisher:
   nat_exit_ip: KURTOSIS_IP_ADDR_PLACEHOLDER
   el:
@@ -25,6 +22,3 @@ port_publisher:
   vc:
     enabled: true
     public_port_start: 34000
-  additional_services:
-    enabled: true
-    public_port_start: 36000
