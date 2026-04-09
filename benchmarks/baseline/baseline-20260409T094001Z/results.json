@@ -1,0 +1,147 @@
+{
+  "metadata": {
+    "environment_label": "current",
+    "git_sha": "2b89497a7669bd665634cbd5799afe808b973332",
+    "target_rpc_url": "http://52.44.40.113:8545",
+    "target_node_label": "node-3",
+    "cl_beacon_url": "http://54.175.18.52:5052",
+    "benchmark_duration_seconds": 30,
+    "request_rates": [
+      25,
+      100,
+      250
+    ],
+    "test_names": [
+      "eth_blockNumber",
+      "eth_getBlockByNumber"
+    ],
+    "el_client_version": "Geth/v1.16.8-stable-abeb78c6/linux-amd64/go1.24.11",
+    "cl_client_version": "Lighthouse/v8.1.0-edba56b/x86_64-linux",
+    "ssh_host": "52.44.40.113",
+    "node_metrics": {
+      "ssh_host": "52.44.40.113",
+      "samples": 28,
+      "failed_samples": 0,
+      "avg_cpu_percent": 15.475714285714286,
+      "peak_cpu_percent": 44.89,
+      "avg_mem_used_bytes": 255382142.85714287,
+      "peak_mem_used_bytes": 259100000.00000003,
+      "start_peer_count": 2,
+      "end_peer_count": 2,
+      "min_peer_count": 2,
+      "max_peer_count": 2
+    }
+  },
+  "liveness": {
+    "rpc_url": "http://52.44.40.113:8545",
+    "poll_interval_seconds": 5,
+    "stall_threshold_seconds": 60,
+    "samples": 37,
+    "starting_block": 4511,
+    "ending_block": 4526,
+    "block_delta": 15,
+    "average_seconds_per_observed_block": 12.032136154174804,
+    "longest_stall_seconds": 15.040321588516235,
+    "stall_detected": false
+  },
+  "benchmarks": {
+    "eth_blockNumber": {
+      "rows": [
+        {
+          "rate": 25,
+          "target_duration": 30,
+          "requests": 750,
+          "throughput": 25.02760816312815,
+          "mean": 0.006885825,
+          "p50": 0.00672963,
+          "p95": 0.007514747,
+          "success": 1.0,
+          "error_rate": 0.0,
+          "errors": [],
+          "status_codes": {
+            "200": 750
+          }
+        },
+        {
+          "rate": 100,
+          "target_duration": 30,
+          "requests": 3000,
+          "throughput": 100.01146216699547,
+          "mean": 0.006332181,
+          "p50": 0.006236388,
+          "p95": 0.006950371,
+          "success": 1.0,
+          "error_rate": 0.0,
+          "errors": [],
+          "status_codes": {
+            "200": 3000
+          }
+        },
+        {
+          "rate": 250,
+          "target_duration": 30,
+          "requests": 7500,
+          "throughput": 249.9823364564246,
+          "mean": 0.006673295,
+          "p50": 0.006525404,
+          "p95": 0.007617717,
+          "success": 1.0,
+          "error_rate": 0.0,
+          "errors": [],
+          "status_codes": {
+            "200": 7500
+          }
+        }
+      ]
+    },
+    "eth_getBlockByNumber": {
+      "rows": [
+        {
+          "rate": 25,
+          "target_duration": 30,
+          "requests": 750,
+          "throughput": 25.026484748817566,
+          "mean": 0.006919117,
+          "p50": 0.006791188,
+          "p95": 0.007521939,
+          "success": 1.0,
+          "error_rate": 0.0,
+          "errors": [],
+          "status_codes": {
+            "200": 750
+          }
+        },
+        {
+          "rate": 100,
+          "target_duration": 30,
+          "requests": 3000,
+          "throughput": 100.00967423581785,
+          "mean": 0.006860394,
+          "p50": 0.006764039,
+          "p95": 0.007647303,
+          "success": 1.0,
+          "error_rate": 0.0,
+          "errors": [],
+          "status_codes": {
+            "200": 3000
+          }
+        },
+        {
+          "rate": 250,
+          "target_duration": 30,
+          "requests": 7500,
+          "throughput": 249.97326965001872,
+          "mean": 0.006753932,
+          "p50": 0.006595553,
+          "p95": 0.007711726,
+          "success": 1.0,
+          "error_rate": 0.0,
+          "errors": [],
+          "status_codes": {
+            "200": 7500
+          }
+        }
+      ]
+    }
+  }
+}
