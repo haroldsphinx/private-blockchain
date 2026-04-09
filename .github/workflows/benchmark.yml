@@ -1,4 +1,4 @@
-name: Benchmark RPC Comparison
+name: Release Benchmarks
 
 on:
   push:
