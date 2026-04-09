@@ -120,6 +120,7 @@ fi
 
 run_method eth_blockNumber
 run_method eth_getBlockByNumber
+run_method eth_call
 
 cleanup
 unset MONITOR_PID
@@ -189,7 +190,7 @@ metadata = {
     "cl_beacon_url": cl_url or None,
     "benchmark_duration_seconds": duration,
     "request_rates": [int(rate) for rate in rates],
-    "test_names": ["eth_blockNumber", "eth_getBlockByNumber"],
+    "test_names": ["eth_blockNumber", "eth_getBlockByNumber", "eth_call"],
     "el_client_version": el_version,
     "cl_client_version": cl_version,
     "ssh_host": ssh_host if ssh_host else None,

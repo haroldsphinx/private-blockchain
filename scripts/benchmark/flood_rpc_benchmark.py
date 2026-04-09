@@ -31,7 +31,11 @@ def rpc_call(url: str, method: str, params: list[object] | None = None) -> dict:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--rpc-url", required=True)
-    parser.add_argument("--method", required=True, choices=["eth_blockNumber", "eth_getBlockByNumber"])
+    parser.add_argument(
+        "--method",
+        required=True,
+        choices=["eth_blockNumber", "eth_getBlockByNumber", "eth_call"],
+    )
     parser.add_argument("--label", required=True)
     parser.add_argument("--rates", required=True, nargs="+", type=int)
     parser.add_argument("--duration", required=True, type=int)
@@ -78,6 +82,23 @@ def load_or_create_workload(args: argparse.Namespace) -> dict:
         "block_numbers": [hex(block_number) for block_number in block_numbers],
         "full_transactions": args.full_transactions,
     }
+    workload["tests"]["eth_call"] = {
+        "calls": [
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "eth_call",
+                "params": [
+                    {
+                        "to": "0x0000000000000000000000000000000000000004",
+                        "data": "0x0123456789abcdef",
+                    },
+                    "latest",
+                ],
+            }
+            for _ in range(n_calls)
+        ]
+    }
     workload_path.parent.mkdir(parents=True, exist_ok=True)
     workload_path.write_text(json.dumps(workload, indent=2) + "\n")
     return workload
@@ -97,6 +118,8 @@ def build_calls(method: str, workload: dict) -> list[dict]:
             }
             for block_number in workload["tests"]["eth_getBlockByNumber"]["block_numbers"]
         ]
+    if method == "eth_call":
+        return workload["tests"]["eth_call"]["calls"]
     raise ValueError(f"unsupported method: {method}")
 
 
