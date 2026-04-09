@@ -52,6 +52,12 @@ def compute_delta(current: float | None, candidate: float | None) -> float | Non
     return candidate - current
 
 
+def compute_relative_delta(current: float | None, candidate: float | None) -> float | None:
+    if current is None or candidate is None or current == 0:
+        return None
+    return ((candidate - current) / current) * 100.0
+
+
 def verdict(metric: str, current: float | None, candidate: float | None) -> str:
     if current is None or candidate is None:
         return "n/a"
@@ -79,6 +85,14 @@ def format_bytes(value: float | int | None) -> str:
     return f"{float(value) / (1024 * 1024):.2f} MiB"
 
 
+def format_percent(value: float | None) -> str:
+    if value is None:
+        return "n/a"
+    if math.isnan(value):
+        return "n/a"
+    return f"{value:.2f}%"
+
+
 def build_comparison(current_run: dict, candidate_run: dict) -> dict:
     rows = []
     for test_name, current_test in current_run["benchmarks"].items():
@@ -97,6 +111,7 @@ def build_comparison(current_run: dict, candidate_run: dict) -> dict:
                         "current": current_value,
                         "candidate": candidate_value,
                         "delta": compute_delta(current_value, candidate_value),
+                        "relative_delta_percent": compute_relative_delta(current_value, candidate_value),
                         "verdict": verdict(metric, current_value, candidate_value),
                     }
                 )
@@ -204,17 +219,18 @@ def render_markdown(current_dir: pathlib.Path, candidate_dir: pathlib.Path, curr
     lines.append("")
     lines.append("## RPC Metrics")
     lines.append("")
-    lines.append("| Test | Rate | Metric | Current | Candidate | Delta | Verdict |")
-    lines.append("| --- | ---: | --- | ---: | ---: | ---: | --- |")
+    lines.append("| Test | Rate | Metric | Current | Candidate | Delta | % Delta | Verdict |")
+    lines.append("| --- | ---: | --- | ---: | ---: | ---: | ---: | --- |")
     for row in comparison["rows"]:
         lines.append(
-            "| {test_name} | {rate} | {metric} | {current} | {candidate} | {delta} | {verdict} |".format(
+            "| {test_name} | {rate} | {metric} | {current} | {candidate} | {delta} | {relative_delta} | {verdict} |".format(
                 test_name=row["test_name"],
                 rate=row["rate"],
                 metric=row["metric"],
                 current=format_value(row["current"]),
                 candidate=format_value(row["candidate"]),
                 delta=format_value(row["delta"]),
+                relative_delta=format_percent(row["relative_delta_percent"]),
                 verdict=row["verdict"],
             )
         )
@@ -291,7 +307,7 @@ def render_html(current_dir: pathlib.Path, candidate_dir: pathlib.Path, current_
         parts.append(f"<div class='chart'>{charts[chart_name]}</div>")
 
     parts.append("<h2>RPC Metrics</h2>")
-    parts.append("<table><thead><tr><th>Test</th><th>Rate</th><th>Metric</th><th>Current</th><th>Candidate</th><th>Delta</th><th>Verdict</th></tr></thead><tbody>")
+    parts.append("<table><thead><tr><th>Test</th><th>Rate</th><th>Metric</th><th>Current</th><th>Candidate</th><th>Delta</th><th>% Delta</th><th>Verdict</th></tr></thead><tbody>")
     for row in comparison["rows"]:
         parts.append(
             "<tr>"
@@ -301,6 +317,7 @@ def render_html(current_dir: pathlib.Path, candidate_dir: pathlib.Path, current_
             f"<td>{format_value(row['current'])}</td>"
             f"<td>{format_value(row['candidate'])}</td>"
             f"<td>{format_value(row['delta'])}</td>"
+            f"<td>{format_percent(row['relative_delta_percent'])}</td>"
             f"<td>{row['verdict']}</td>"
             "</tr>"
         )
