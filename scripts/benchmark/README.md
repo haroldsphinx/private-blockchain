@@ -8,6 +8,7 @@ In CI, `baseline` means the most recent benchmark artifact produced from `main`.
 
 - `eth_blockNumber` benchmarked for latency and throughput
 - `eth_getBlockByNumber` benchmarked for latency and throughput
+- `eth_call` benchmarked for latency and throughput
 - block height progression during the benchmark window
 - optional `geth` CPU, memory, and peer count sampling over SSH
 - side-by-side current vs candidate comparison report
@@ -96,6 +97,7 @@ Each run is stored under `results/<label>/<timestamp>/` and includes:
 - `node_metrics_samples.csv` when `BENCHMARK_SSH_HOST` is set
 - `benchmarks/eth_blockNumber/`
 - `benchmarks/eth_getBlockByNumber/`
+- `benchmarks/eth_call/`
 
 Each benchmark directory includes:
 
@@ -105,6 +107,7 @@ Each benchmark directory includes:
 
 Comparison output is written under `reports/<timestamp>/`:
 
+- `report.html`
 - `report.md`
 - `results.json`
 
@@ -117,3 +120,4 @@ Baseline report output is written under `reports/baseline-<timestamp>/`:
 
 - Flood 0.3.1 does not ship a built-in `eth_blockNumber` test generator, so this repo uses Flood's own load-test runner and result format through a thin Python wrapper for that method.
 - `eth_getBlockByNumber` uses block numbers sampled from the live chain head of the baseline run and stores them in `workload.json`, so the candidate run can reuse the exact same request set.
+- `eth_call` uses a deterministic call to the identity precompile (`0x...04`) so it is available on a fresh private chain without needing a deployed contract.

@@ -124,8 +124,12 @@ def copy_comparison(report_dir: pathlib.Path, pages_dir: pathlib.Path, label: st
     target_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(report_dir / "report.md", target_dir / "report.md")
     shutil.copy2(report_dir / "results.json", target_dir / "results.json")
-    markdown_text = (report_dir / "report.md").read_text()
-    (target_dir / "report.html").write_text(render_markdown_html(markdown_text, f"Benchmark Comparison: {label}"))
+    source_html = report_dir / "report.html"
+    if source_html.exists():
+        shutil.copy2(source_html, target_dir / "report.html")
+    else:
+        markdown_text = (report_dir / "report.md").read_text()
+        (target_dir / "report.html").write_text(render_markdown_html(markdown_text, f"Benchmark Comparison: {label}"))
 
 
 def main() -> None:
