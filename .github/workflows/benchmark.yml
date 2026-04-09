@@ -76,36 +76,22 @@ jobs:
       - name: Generate Baseline Report
         run: ./scripts/benchmark/report.sh "${{ steps.baseline_run.outputs.dir }}"
 
-      - name: Export Baseline Summary For Benchmark Action
+      - name: Resolve Baseline Report Directory
+        id: baseline_report
+        run: echo "dir=$(find reports -mindepth 1 -maxdepth 1 -type d -name 'baseline-*' | sort | tail -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Append Baseline Report Location To Job Summary
         run: |
-          mkdir -p .benchmark-action
-          python3 scripts/report/export_github_action_benchmark.py \
-            --run "${{ steps.baseline_run.outputs.dir }}" \
-            --output-dir .benchmark-action
+          echo "Baseline report: \`${{ steps.baseline_report.outputs.dir }}/report.html\`" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Publish Smaller-Is-Better Baseline Summary
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          name: RPC Benchmark Baseline
-          tool: customSmallerIsBetter
-          output-file-path: .benchmark-action/github-action-benchmark-smaller.json
-          github-token: ${{ secrets.BENCHMARK_PAGES_TOKEN }}
-          summary-always: true
-          benchmark-data-dir-path: dev/bench/smaller
-          auto-push: true
-          gh-pages-branch: gh-pages
-
-      - name: Publish Bigger-Is-Better Baseline Summary
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          name: RPC Benchmark Baseline
-          tool: customBiggerIsBetter
-          output-file-path: .benchmark-action/github-action-benchmark-bigger.json
-          github-token: ${{ secrets.BENCHMARK_PAGES_TOKEN }}
-          summary-always: true
-          benchmark-data-dir-path: dev/bench/bigger
-          auto-push: true
-          gh-pages-branch: gh-pages
+      - name: Publish Baseline Report To GitHub Pages
+        env:
+          BENCHMARK_PAGES_TOKEN: ${{ secrets.BENCHMARK_PAGES_TOKEN }}
+        run: |
+          python3 scripts/report/publish_to_gh_pages.py \
+            --repo "${{ github.repository }}" \
+            --branch gh-pages \
+            --baseline-report-dir "${{ steps.baseline_report.outputs.dir }}"
 
       - name: Upload Latest Baseline Artifact
         uses: actions/upload-artifact@v4
@@ -185,17 +171,24 @@ jobs:
       - name: Compare Baseline To Candidate
         run: ./scripts/benchmark/compare.sh "${{ steps.baseline_run.outputs.dir }}" "${{ steps.candidate_run.outputs.dir }}"
 
-      - name: Export Candidate Summary For Benchmark Action
-        run: |
-          mkdir -p .benchmark-action
-          python3 scripts/report/export_github_action_benchmark.py \
-            --run "${{ steps.candidate_run.outputs.dir }}" \
-            --output-dir .benchmark-action
-
       - name: Append Full Comparison Report To Job Summary
         run: |
           latest_report="$(find reports -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)/report.md"
           cat "$latest_report" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Resolve Comparison Report Directory
+        id: comparison_report
+        run: echo "dir=$(find reports -mindepth 1 -maxdepth 1 -type d ! -name 'baseline-*' | sort | tail -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish Comparison Report To GitHub Pages
+        env:
+          BENCHMARK_PAGES_TOKEN: ${{ secrets.BENCHMARK_PAGES_TOKEN }}
+        run: |
+          python3 scripts/report/publish_to_gh_pages.py \
+            --repo "${{ github.repository }}" \
+            --branch gh-pages \
+            --comparison-report-dir "${{ steps.comparison_report.outputs.dir }}" \
+            --comparison-label "${{ inputs.tag }}"
 
       - name: Upload Comparison Artifact
         uses: actions/upload-artifact@v4
