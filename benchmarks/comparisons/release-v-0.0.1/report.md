@@ -1,0 +1,58 @@
+# Benchmark Comparison
+
+- Current run: `.baseline/results/current/20260409T093649Z`
+- Candidate run: `results/candidate/20260409T100533Z`
+- Current EL client: `Geth/v1.16.8-stable-abeb78c6/linux-amd64/go1.24.11`
+- Candidate EL client: `Geth/v1.16.7-stable-b9f3a3d9/linux-amd64/go1.24.9`
+- Current CL client: `Lighthouse/v8.1.0-edba56b/x86_64-linux`
+- Candidate CL client: `Lighthouse/v8.1.0-edba56b/x86_64-linux`
+
+## RPC Metrics
+
+| Test | Rate | Metric | Current | Candidate | Delta | Verdict |
+| --- | ---: | --- | ---: | ---: | ---: | --- |
+| eth_blockNumber | 25 | mean | 0.0069 | 0.0182 | 0.0114 | regressed |
+| eth_blockNumber | 25 | p50 | 0.0067 | 0.0181 | 0.0113 | regressed |
+| eth_blockNumber | 25 | p95 | 0.0075 | 0.0191 | 0.0116 | regressed |
+| eth_blockNumber | 25 | throughput | 25.0276 | 25.0176 | -0.0100 | unchanged |
+| eth_blockNumber | 25 | error_rate | 0.0000 | 0.0000 | 0.0000 | unchanged |
+| eth_blockNumber | 100 | mean | 0.0063 | 0.0180 | 0.0117 | regressed |
+| eth_blockNumber | 100 | p50 | 0.0062 | 0.0178 | 0.0116 | regressed |
+| eth_blockNumber | 100 | p95 | 0.0070 | 0.0189 | 0.0119 | regressed |
+| eth_blockNumber | 100 | throughput | 100.0115 | 99.9727 | -0.0388 | unchanged |
+| eth_blockNumber | 100 | error_rate | 0.0000 | 0.0000 | 0.0000 | unchanged |
+| eth_blockNumber | 250 | mean | 0.0067 | 0.0193 | 0.0126 | regressed |
+| eth_blockNumber | 250 | p50 | 0.0065 | 0.0184 | 0.0119 | regressed |
+| eth_blockNumber | 250 | p95 | 0.0076 | 0.0229 | 0.0153 | regressed |
+| eth_blockNumber | 250 | throughput | 249.9823 | 249.8587 | -0.1236 | unchanged |
+| eth_blockNumber | 250 | error_rate | 0.0000 | 0.0000 | 0.0000 | unchanged |
+| eth_getBlockByNumber | 25 | mean | 0.0069 | 0.0189 | 0.0120 | regressed |
+| eth_getBlockByNumber | 25 | p50 | 0.0068 | 0.0182 | 0.0114 | regressed |
+| eth_getBlockByNumber | 25 | p95 | 0.0075 | 0.0227 | 0.0152 | regressed |
+| eth_getBlockByNumber | 25 | throughput | 25.0265 | 25.0180 | -0.0085 | unchanged |
+| eth_getBlockByNumber | 25 | error_rate | 0.0000 | 0.0000 | 0.0000 | unchanged |
+| eth_getBlockByNumber | 100 | mean | 0.0069 | 0.0192 | 0.0124 | regressed |
+| eth_getBlockByNumber | 100 | p50 | 0.0068 | 0.0179 | 0.0111 | regressed |
+| eth_getBlockByNumber | 100 | p95 | 0.0076 | 0.0226 | 0.0150 | regressed |
+| eth_getBlockByNumber | 100 | throughput | 100.0097 | 99.9599 | -0.0498 | unchanged |
+| eth_getBlockByNumber | 100 | error_rate | 0.0000 | 0.0000 | 0.0000 | unchanged |
+| eth_getBlockByNumber | 250 | mean | 0.0068 | 0.0203 | 0.0136 | regressed |
+| eth_getBlockByNumber | 250 | p50 | 0.0066 | 0.0196 | 0.0130 | regressed |
+| eth_getBlockByNumber | 250 | p95 | 0.0077 | 0.0233 | 0.0156 | regressed |
+| eth_getBlockByNumber | 250 | throughput | 249.9733 | 249.8488 | -0.1245 | unchanged |
+| eth_getBlockByNumber | 250 | error_rate | 0.0000 | 0.0000 | 0.0000 | unchanged |
+
+## Liveness
+
+| Run | Start Block | End Block | Block Delta | Avg Seconds Per Block Increase | Stall Detected |
+| --- | ---: | ---: | ---: | ---: | --- |
+| current | 4511 | 4526 | 15 | 12.0321 | no |
+| candidate | 0 | 0 | 0 | n/a | yes |
+
+## Node Metrics
+
+| Run | Avg CPU % | Peak CPU % | Avg Memory | Peak Memory | Start Peers | End Peers | Min Peers |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| current | 15.4757 | 44.8900 | 243.55 MiB | 247.10 MiB | 2 | 2 | 2 |
+| candidate | 16.0712 | 38.2100 | 59.10 MiB | 62.23 MiB | 0 | 0 | 0 |
+

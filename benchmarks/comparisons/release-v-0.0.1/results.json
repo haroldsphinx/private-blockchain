@@ -1,0 +1,570 @@
+{
+  "current": {
+    "metadata": {
+      "environment_label": "current",
+      "git_sha": "2b89497a7669bd665634cbd5799afe808b973332",
+      "target_rpc_url": "http://52.44.40.113:8545",
+      "target_node_label": "node-3",
+      "cl_beacon_url": "http://54.175.18.52:5052",
+      "benchmark_duration_seconds": 30,
+      "request_rates": [
+        25,
+        100,
+        250
+      ],
+      "test_names": [
+        "eth_blockNumber",
+        "eth_getBlockByNumber"
+      ],
+      "el_client_version": "Geth/v1.16.8-stable-abeb78c6/linux-amd64/go1.24.11",
+      "cl_client_version": "Lighthouse/v8.1.0-edba56b/x86_64-linux",
+      "ssh_host": "52.44.40.113"
+    },
+    "liveness": {
+      "rpc_url": "http://52.44.40.113:8545",
+      "poll_interval_seconds": 5,
+      "stall_threshold_seconds": 60,
+      "samples": 37,
+      "starting_block": 4511,
+      "ending_block": 4526,
+      "block_delta": 15,
+      "average_seconds_per_observed_block": 12.032136154174804,
+      "longest_stall_seconds": 15.040321588516235,
+      "stall_detected": false
+    },
+    "benchmarks": {
+      "eth_blockNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.02760816312815,
+            "mean": 0.006885825,
+            "p50": 0.00672963,
+            "p95": 0.007514747,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.01146216699547,
+            "mean": 0.006332181,
+            "p50": 0.006236388,
+            "p95": 0.006950371,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.9823364564246,
+            "mean": 0.006673295,
+            "p50": 0.006525404,
+            "p95": 0.007617717,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      },
+      "eth_getBlockByNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.026484748817566,
+            "mean": 0.006919117,
+            "p50": 0.006791188,
+            "p95": 0.007521939,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.00967423581785,
+            "mean": 0.006860394,
+            "p50": 0.006764039,
+            "p95": 0.007647303,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.97326965001872,
+            "mean": 0.006753932,
+            "p50": 0.006595553,
+            "p95": 0.007711726,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      }
+    },
+    "node_metrics": {
+      "ssh_host": "52.44.40.113",
+      "samples": 28,
+      "failed_samples": 0,
+      "avg_cpu_percent": 15.475714285714286,
+      "peak_cpu_percent": 44.89,
+      "avg_mem_used_bytes": 255382142.85714287,
+      "peak_mem_used_bytes": 259100000.00000003,
+      "start_peer_count": 2,
+      "end_peer_count": 2,
+      "min_peer_count": 2,
+      "max_peer_count": 2
+    }
+  },
+  "candidate": {
+    "metadata": {
+      "environment_label": "candidate",
+      "git_sha": "f83b63066e85b1d503a6eea488bc3890937251f8",
+      "target_rpc_url": "http://52.44.40.113:8545",
+      "target_node_label": "node-3",
+      "cl_beacon_url": "http://54.175.18.52:5052",
+      "benchmark_duration_seconds": 30,
+      "request_rates": [
+        25,
+        100,
+        250
+      ],
+      "test_names": [
+        "eth_blockNumber",
+        "eth_getBlockByNumber"
+      ],
+      "el_client_version": "Geth/v1.16.7-stable-b9f3a3d9/linux-amd64/go1.24.9",
+      "cl_client_version": "Lighthouse/v8.1.0-edba56b/x86_64-linux",
+      "ssh_host": "52.44.40.113"
+    },
+    "liveness": {
+      "rpc_url": "http://52.44.40.113:8545",
+      "poll_interval_seconds": 5,
+      "stall_threshold_seconds": 60,
+      "samples": 37,
+      "starting_block": 0,
+      "ending_block": 0,
+      "block_delta": 0,
+      "average_seconds_per_observed_block": null,
+      "longest_stall_seconds": 181.45062732696533,
+      "stall_detected": true
+    },
+    "benchmarks": {
+      "eth_blockNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.017617499642355,
+            "mean": 0.018249978,
+            "p50": 0.018067389,
+            "p95": 0.019137727,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 99.97269131967734,
+            "mean": 0.0179935,
+            "p50": 0.017788269,
+            "p95": 0.018862107,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.85870486908203,
+            "mean": 0.019317703,
+            "p50": 0.01838764,
+            "p95": 0.022885954,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      },
+      "eth_getBlockByNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.01802859851225,
+            "mean": 0.018929874,
+            "p50": 0.018228939,
+            "p95": 0.022689752,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 99.95986365239892,
+            "mean": 0.019218059,
+            "p50": 0.017899904,
+            "p95": 0.022649185,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.84880104982886,
+            "mean": 0.020324007,
+            "p50": 0.019567157,
+            "p95": 0.023305878,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      }
+    },
+    "node_metrics": {
+      "ssh_host": "52.44.40.113",
+      "samples": 26,
+      "failed_samples": 0,
+      "avg_cpu_percent": 16.071153846153845,
+      "peak_cpu_percent": 38.21,
+      "avg_mem_used_bytes": 61970769.23076923,
+      "peak_mem_used_bytes": 65250000.0,
+      "start_peer_count": 0,
+      "end_peer_count": 0,
+      "min_peer_count": 0,
+      "max_peer_count": 0
+    }
+  },
+  "comparison": {
+    "rows": [
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "mean",
+        "current": 0.006885825,
+        "candidate": 0.018249978,
+        "delta": 0.011364153,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "p50",
+        "current": 0.00672963,
+        "candidate": 0.018067389,
+        "delta": 0.011337759,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "p95",
+        "current": 0.007514747,
+        "candidate": 0.019137727,
+        "delta": 0.011622980000000002,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "throughput",
+        "current": 25.02760816312815,
+        "candidate": 25.017617499642355,
+        "delta": -0.009990663485794471,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "mean",
+        "current": 0.006332181,
+        "candidate": 0.0179935,
+        "delta": 0.011661319,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "p50",
+        "current": 0.006236388,
+        "candidate": 0.017788269,
+        "delta": 0.011551881,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "p95",
+        "current": 0.006950371,
+        "candidate": 0.018862107,
+        "delta": 0.011911736,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "throughput",
+        "current": 100.01146216699547,
+        "candidate": 99.97269131967734,
+        "delta": -0.038770847318133406,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "mean",
+        "current": 0.006673295,
+        "candidate": 0.019317703,
+        "delta": 0.012644408,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "p50",
+        "current": 0.006525404,
+        "candidate": 0.01838764,
+        "delta": 0.011862236,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "p95",
+        "current": 0.007617717,
+        "candidate": 0.022885954,
+        "delta": 0.015268237,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "throughput",
+        "current": 249.9823364564246,
+        "candidate": 249.85870486908203,
+        "delta": -0.1236315873425724,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "mean",
+        "current": 0.006919117,
+        "candidate": 0.018929874,
+        "delta": 0.012010757,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "p50",
+        "current": 0.006791188,
+        "candidate": 0.018228939,
+        "delta": 0.011437751,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "p95",
+        "current": 0.007521939,
+        "candidate": 0.022689752,
+        "delta": 0.015167813,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "throughput",
+        "current": 25.026484748817566,
+        "candidate": 25.01802859851225,
+        "delta": -0.008456150305317323,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "mean",
+        "current": 0.006860394,
+        "candidate": 0.019218059,
+        "delta": 0.012357665,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "p50",
+        "current": 0.006764039,
+        "candidate": 0.017899904,
+        "delta": 0.011135865000000002,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "p95",
+        "current": 0.007647303,
+        "candidate": 0.022649185,
+        "delta": 0.015001881999999998,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "throughput",
+        "current": 100.00967423581785,
+        "candidate": 99.95986365239892,
+        "delta": -0.04981058341893174,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "mean",
+        "current": 0.006753932,
+        "candidate": 0.020324007,
+        "delta": 0.013570075000000001,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "p50",
+        "current": 0.006595553,
+        "candidate": 0.019567157,
+        "delta": 0.012971604000000001,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "p95",
+        "current": 0.007711726,
+        "candidate": 0.023305878,
+        "delta": 0.015594151999999998,
+        "verdict": "regressed"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "throughput",
+        "current": 249.97326965001872,
+        "candidate": 249.84880104982886,
+        "delta": -0.12446860018985717,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "verdict": "unchanged"
+      }
+    ]
+  }
+}
