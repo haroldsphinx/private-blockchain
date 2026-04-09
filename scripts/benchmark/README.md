@@ -78,6 +78,8 @@ Compare specific runs:
 - manual workflow runs accept only a `tag` or git ref input
 - the manual run benchmarks that ref against the latest saved `main` baseline
 - the workflow uses hardcoded deployed RPC, CL, and SSH targets for simplicity
+- GitHub Actions also publishes a compact benchmark summary in the workflow run using `benchmark-action/github-action-benchmark`
+- the action history is preserved as a `benchmark-history` artifact and reused on later runs
 
 ## Result Layout
 
@@ -107,6 +109,11 @@ Baseline report output is written under `reports/baseline-<timestamp>/`:
 
 - `report.html`
 - `results.json`
+
+The GitHub Actions workflow also exports compact benchmark-action input files for workflow summaries:
+
+- `github-action-benchmark-smaller.json`
+- `github-action-benchmark-bigger.json`
 
 ## Notes
 

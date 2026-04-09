@@ -4,7 +4,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import pathlib
+import shlex
 import signal
 import subprocess
 import sys
@@ -31,8 +33,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def ssh_run(ssh_bin: str, host: str, command: str) -> str:
+    ssh_argv = [os.path.expanduser(part) for part in shlex.split(ssh_bin)]
     result = subprocess.run(
-        [ssh_bin, host, command],
+        [*ssh_argv, host, command],
         check=True,
         capture_output=True,
         text=True,
@@ -58,14 +61,14 @@ def parse_mem_usage(mem_usage: str) -> tuple[float | None, float | None]:
 
 def convert_to_bytes(value: str) -> float:
     normalized = value.replace("iB", "B").replace(" ", "")
-    units = {
-        "B": 1,
-        "kB": 1000,
-        "MB": 1000**2,
-        "GB": 1000**3,
-        "TB": 1000**4,
-    }
-    for unit, multiplier in units.items():
+    units = [
+        ("TB", 1000**4),
+        ("GB", 1000**3),
+        ("MB", 1000**2),
+        ("kB", 1000),
+        ("B", 1),
+    ]
+    for unit, multiplier in units:
         if normalized.endswith(unit):
             return float(normalized[: -len(unit)]) * multiplier
     return float(normalized)

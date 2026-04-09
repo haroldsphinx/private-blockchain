@@ -13,7 +13,7 @@ on:
 env:
   BENCHMARK_RPC_URL: "http://52.44.40.113:8545"
   BENCHMARK_CL_URL: "http://54.175.18.52:5052"
-  BENCHMARK_SSH_HOST: "ubuntu@52.44.40.113"
+  BENCHMARK_SSH_HOST: "52.44.40.113"
   BENCHMARK_TARGET_NODE_LABEL: "node-3"
   BENCHMARK_RATES: "25 100 250"
   BENCHMARK_DURATION: "30"
@@ -61,7 +61,7 @@ jobs:
         run: pip install paradigm-flood
 
       - name: Install Vegeta
-        run: go install github.com/tsenart/vegeta@latest
+        run: go install github.com/tsenart/vegeta@v12.7.0
 
       - name: Add Go Bin to PATH
         run: echo "$HOME/go/bin" >> "$GITHUB_PATH"
@@ -76,6 +76,50 @@ jobs:
       - name: Generate Baseline Report
         run: ./scripts/benchmark/report.sh "${{ steps.baseline_run.outputs.dir }}"
 
+      - name: Export Baseline Summary For Benchmark Action
+        run: |
+          mkdir -p .benchmark-action
+          python3 scripts/report/export_github_action_benchmark.py \
+            --run "${{ steps.baseline_run.outputs.dir }}" \
+            --output-dir .benchmark-action
+
+      - name: Download Existing Benchmark History
+        id: history_download
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: benchmark.yml
+          branch: main
+          name: benchmark-history
+          path: .benchmark-history
+          if_no_artifact_found: warn
+
+      - name: Initialize Benchmark History Files
+        run: |
+          mkdir -p .benchmark-history
+          [ -f .benchmark-history/smaller.json ] || printf '[]\n' > .benchmark-history/smaller.json
+          [ -f .benchmark-history/bigger.json ] || printf '[]\n' > .benchmark-history/bigger.json
+
+      - name: Publish Smaller-Is-Better Baseline Summary
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: RPC Benchmark Baseline
+          tool: customSmallerIsBetter
+          output-file-path: .benchmark-action/github-action-benchmark-smaller.json
+          external-data-json-path: .benchmark-history/smaller.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          summary-always: true
+
+      - name: Publish Bigger-Is-Better Baseline Summary
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: RPC Benchmark Baseline
+          tool: customBiggerIsBetter
+          output-file-path: .benchmark-action/github-action-benchmark-bigger.json
+          external-data-json-path: .benchmark-history/bigger.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          summary-always: true
+
       - name: Upload Latest Baseline Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -83,6 +127,12 @@ jobs:
           path: |
             results/current
             reports/baseline-*
+
+      - name: Upload Benchmark History Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-history
+          path: .benchmark-history
 
   compare:
     if: github.event_name == 'workflow_dispatch'
@@ -126,7 +176,7 @@ jobs:
         run: pip install paradigm-flood
 
       - name: Install Vegeta
-        run: go install github.com/tsenart/vegeta@latest
+        run: go install github.com/tsenart/vegeta@v12.7.0
 
       - name: Add Go Bin to PATH
         run: echo "$HOME/go/bin" >> "$GITHUB_PATH"
@@ -153,6 +203,49 @@ jobs:
 
       - name: Compare Baseline To Candidate
         run: ./scripts/benchmark/compare.sh "${{ steps.baseline_run.outputs.dir }}" "${{ steps.candidate_run.outputs.dir }}"
+
+      - name: Export Candidate Summary For Benchmark Action
+        run: |
+          mkdir -p .benchmark-action
+          python3 scripts/report/export_github_action_benchmark.py \
+            --run "${{ steps.candidate_run.outputs.dir }}" \
+            --output-dir .benchmark-action
+
+      - name: Download Benchmark History
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: benchmark.yml
+          branch: main
+          name: benchmark-history
+          path: .benchmark-history
+          if_no_artifact_found: fail
+
+      - name: Publish Smaller-Is-Better Comparison Summary
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: RPC Benchmark Comparison
+          tool: customSmallerIsBetter
+          output-file-path: .benchmark-action/github-action-benchmark-smaller.json
+          external-data-json-path: .benchmark-history/smaller.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          summary-always: true
+          save-data-file: false
+
+      - name: Publish Bigger-Is-Better Comparison Summary
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: RPC Benchmark Comparison
+          tool: customBiggerIsBetter
+          output-file-path: .benchmark-action/github-action-benchmark-bigger.json
+          external-data-json-path: .benchmark-history/bigger.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          summary-always: true
+          save-data-file: false
+
+      - name: Append Full Comparison Report To Job Summary
+        run: |
+          latest_report="$(find reports -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)/report.md"
+          cat "$latest_report" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Comparison Artifact
         uses: actions/upload-artifact@v4
