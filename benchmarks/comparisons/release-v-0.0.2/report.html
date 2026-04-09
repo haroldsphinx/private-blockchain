@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang='en'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Benchmark Comparison</title>
+<style>body{font-family:Georgia,serif;max-width:1100px;margin:40px auto;padding:0 20px;color:#1f2933;line-height:1.5;}h1,h2,h3{font-family:Menlo,monospace;}table{border-collapse:collapse;width:100%;margin:16px 0 24px;}th,td{border:1px solid #d9e2ec;padding:8px 10px;text-align:right;font-family:Menlo,monospace;font-size:13px;}th:first-child,td:first-child{text-align:left;}.meta li{margin:4px 0;}.chart{margin:20px 0 32px;border:1px solid #d9e2ec;padding:12px;background:#fff;}.note{background:#f8fafc;border-left:4px solid #0b7285;padding:12px 14px;}</style></head><body>
+<h1>Benchmark Comparison</h1>
+<ul class='meta'>
+<li><strong>Current run:</strong> <code>.baseline/results/current/20260409T103442Z</code></li>
+<li><strong>Candidate run:</strong> <code>results/candidate/20260409T104349Z</code></li>
+<li><strong>Current EL client:</strong> <code>Geth/v1.16.7-stable-b9f3a3d9/linux-amd64/go1.24.9</code></li>
+<li><strong>Candidate EL client:</strong> <code>Geth/v1.16.8-stable-abeb78c6/linux-amd64/go1.24.11</code></li>
+<li><strong>Current CL client:</strong> <code>Lighthouse/v8.1.0-edba56b/x86_64-linux</code></li>
+<li><strong>Candidate CL client:</strong> <code>Lighthouse/v8.1.0-edba56b/x86_64-linux</code></li>
+</ul>
+<div class='note'>Charts below compare the current baseline against the candidate run using the same saved workload.</div>
+<h2>Side-By-Side Charts</h2>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_blockNumber p95: current vs candidate</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>seconds</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>0.00</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>0.00</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,20.00 330.67,25.54 880.00,37.31'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>current</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,244.02 330.67,230.38 880.00,280.00'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>candidate</text>
+</svg></div>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_blockNumber throughput: current vs candidate</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>req/s</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>25.03</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>81.27</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>137.52</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>193.76</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>250.01</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,280.00 330.67,193.35 880.00,20.04'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>current</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,280.00 330.67,193.33 880.00,20.00'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>candidate</text>
+</svg></div>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_call p95: current vs candidate</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>seconds</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>0.00</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>0.00</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,45.73 330.67,35.34 880.00,20.00'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>current</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,199.12 330.67,280.00 880.00,250.18'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>candidate</text>
+</svg></div>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_call throughput: current vs candidate</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>req/s</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>25.03</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>81.27</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>137.52</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>193.76</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>250.01</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,280.00 330.67,193.35 880.00,20.04'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>current</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,280.00 330.67,193.33 880.00,20.00'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>candidate</text>
+</svg></div>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_getBlockByNumber p95: current vs candidate</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>seconds</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>0.00</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>0.00</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>0.01</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,40.28 330.67,20.00 880.00,33.39'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>current</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,244.94 330.67,266.72 880.00,280.00'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>candidate</text>
+</svg></div>
+<div class='chart'><svg xmlns='http://www.w3.org/2000/svg' width='900' height='320' viewBox='0 0 900 320'>
+<rect width='100%' height='100%' fill='white'/>
+<text x='56' y='16' font-size='16' font-family='monospace'>eth_getBlockByNumber throughput: current vs candidate</text>
+<line x1='56' y1='280' x2='880' y2='280' stroke='#333'/>
+<line x1='56' y1='20' x2='56' y2='280' stroke='#333'/>
+<text x='450.0' y='312' text-anchor='middle' font-size='12' font-family='monospace'>requests per second</text>
+<text x='16' y='160.0' transform='rotate(-90 16 160.0)' text-anchor='middle' font-size='12' font-family='monospace'>req/s</text>
+<line x1='56.00' y1='280' x2='56.00' y2='284' stroke='#666'/>
+<text x='56.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>25</text>
+<line x1='52' y1='280.00' x2='56' y2='280.00' stroke='#666'/>
+<text x='48' y='284.00' text-anchor='end' font-size='11' font-family='monospace'>25.03</text>
+<line x1='262.00' y1='280' x2='262.00' y2='284' stroke='#666'/>
+<text x='262.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>81</text>
+<line x1='52' y1='215.00' x2='56' y2='215.00' stroke='#666'/>
+<text x='48' y='219.00' text-anchor='end' font-size='11' font-family='monospace'>81.27</text>
+<line x1='468.00' y1='280' x2='468.00' y2='284' stroke='#666'/>
+<text x='468.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>138</text>
+<line x1='52' y1='150.00' x2='56' y2='150.00' stroke='#666'/>
+<text x='48' y='154.00' text-anchor='end' font-size='11' font-family='monospace'>137.51</text>
+<line x1='674.00' y1='280' x2='674.00' y2='284' stroke='#666'/>
+<text x='674.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>194</text>
+<line x1='52' y1='85.00' x2='56' y2='85.00' stroke='#666'/>
+<text x='48' y='89.00' text-anchor='end' font-size='11' font-family='monospace'>193.76</text>
+<line x1='880.00' y1='280' x2='880.00' y2='284' stroke='#666'/>
+<text x='880.00' y='298' text-anchor='middle' font-size='11' font-family='monospace'>250</text>
+<line x1='52' y1='20.00' x2='56' y2='20.00' stroke='#666'/>
+<text x='48' y='24.00' text-anchor='end' font-size='11' font-family='monospace'>250.00</text>
+<polyline fill='none' stroke='#0b7285' stroke-width='2' points='56.00,280.00 330.67,193.34 880.00,20.02'/>
+<line x1='68' y1='32' x2='86' y2='32' stroke='#0b7285' stroke-width='2'/>
+<text x='92' y='36' font-size='11' font-family='monospace'>current</text>
+<polyline fill='none' stroke='#c92a2a' stroke-width='2' points='56.00,280.00 330.67,193.33 880.00,20.00'/>
+<line x1='328' y1='32' x2='346' y2='32' stroke='#c92a2a' stroke-width='2'/>
+<text x='352' y='36' font-size='11' font-family='monospace'>candidate</text>
+</svg></div>
+<h2>RPC Metrics</h2>
+<table><thead><tr><th>Test</th><th>Rate</th><th>Metric</th><th>Current</th><th>Candidate</th><th>Delta</th><th>% Delta</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>eth_blockNumber</td><td>25</td><td>mean</td><td>0.0068</td><td>0.0028</td><td>-0.0040</td><td>-58.76%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>25</td><td>p50</td><td>0.0067</td><td>0.0027</td><td>-0.0040</td><td>-60.40%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>25</td><td>p95</td><td>0.0075</td><td>0.0036</td><td>-0.0038</td><td>-51.32%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>25</td><td>throughput</td><td>25.0279</td><td>25.0308</td><td>0.0029</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_blockNumber</td><td>25</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_blockNumber</td><td>100</td><td>mean</td><td>0.0068</td><td>0.0034</td><td>-0.0034</td><td>-50.64%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>100</td><td>p50</td><td>0.0069</td><td>0.0032</td><td>-0.0037</td><td>-53.25%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>100</td><td>p95</td><td>0.0074</td><td>0.0039</td><td>-0.0035</td><td>-47.54%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>100</td><td>throughput</td><td>100.0117</td><td>100.0214</td><td>0.0097</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_blockNumber</td><td>100</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_blockNumber</td><td>250</td><td>mean</td><td>0.0067</td><td>0.0025</td><td>-0.0042</td><td>-62.45%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>250</td><td>p50</td><td>0.0066</td><td>0.0025</td><td>-0.0042</td><td>-62.86%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>250</td><td>p95</td><td>0.0072</td><td>0.0030</td><td>-0.0042</td><td>-57.90%</td><td>improved</td></tr>
+<tr><td>eth_blockNumber</td><td>250</td><td>throughput</td><td>249.9777</td><td>250.0105</td><td>0.0328</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_blockNumber</td><td>250</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_call</td><td>25</td><td>mean</td><td>0.0067</td><td>0.0040</td><td>-0.0027</td><td>-39.92%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>25</td><td>p50</td><td>0.0065</td><td>0.0039</td><td>-0.0027</td><td>-40.81%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>25</td><td>p95</td><td>0.0074</td><td>0.0048</td><td>-0.0026</td><td>-34.87%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>25</td><td>throughput</td><td>25.0272</td><td>25.0302</td><td>0.0029</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_call</td><td>25</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_call</td><td>100</td><td>mean</td><td>0.0069</td><td>0.0027</td><td>-0.0042</td><td>-60.44%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>100</td><td>p50</td><td>0.0068</td><td>0.0026</td><td>-0.0043</td><td>-62.27%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>100</td><td>p95</td><td>0.0075</td><td>0.0034</td><td>-0.0041</td><td>-54.34%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>100</td><td>throughput</td><td>100.0108</td><td>100.0253</td><td>0.0146</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_call</td><td>100</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_call</td><td>250</td><td>mean</td><td>0.0070</td><td>0.0029</td><td>-0.0041</td><td>-58.44%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>250</td><td>p50</td><td>0.0069</td><td>0.0027</td><td>-0.0042</td><td>-60.56%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>250</td><td>p95</td><td>0.0078</td><td>0.0039</td><td>-0.0039</td><td>-49.44%</td><td>improved</td></tr>
+<tr><td>eth_call</td><td>250</td><td>throughput</td><td>249.9721</td><td>250.0103</td><td>0.0382</td><td>0.02%</td><td>unchanged</td></tr>
+<tr><td>eth_call</td><td>250</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>25</td><td>mean</td><td>0.0069</td><td>0.0038</td><td>-0.0030</td><td>-43.96%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>25</td><td>p50</td><td>0.0068</td><td>0.0038</td><td>-0.0031</td><td>-44.86%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>25</td><td>p95</td><td>0.0072</td><td>0.0043</td><td>-0.0029</td><td>-40.15%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>25</td><td>throughput</td><td>25.0275</td><td>25.0301</td><td>0.0026</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>25</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>100</td><td>mean</td><td>0.0070</td><td>0.0034</td><td>-0.0037</td><td>-52.12%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>100</td><td>p50</td><td>0.0069</td><td>0.0032</td><td>-0.0037</td><td>-53.96%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>100</td><td>p95</td><td>0.0075</td><td>0.0040</td><td>-0.0035</td><td>-46.54%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>100</td><td>throughput</td><td>100.0100</td><td>100.0202</td><td>0.0102</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>100</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>250</td><td>mean</td><td>0.0066</td><td>0.0031</td><td>-0.0035</td><td>-53.44%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>250</td><td>p50</td><td>0.0065</td><td>0.0031</td><td>-0.0034</td><td>-52.46%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>250</td><td>p95</td><td>0.0073</td><td>0.0038</td><td>-0.0035</td><td>-47.73%</td><td>improved</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>250</td><td>throughput</td><td>249.9783</td><td>249.9985</td><td>0.0202</td><td>0.01%</td><td>unchanged</td></tr>
+<tr><td>eth_getBlockByNumber</td><td>250</td><td>error_rate</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>n/a</td><td>unchanged</td></tr>
+</tbody></table>
+<h2>Liveness</h2>
+<table><thead><tr><th>Run</th><th>Start Block</th><th>End Block</th><th>Block Delta</th><th>Avg Seconds Per Block Increase</th><th>Stall Detected</th></tr></thead><tbody>
+<tr><td>current</td><td>0</td><td>0</td><td>0</td><td>n/a</td><td>yes</td></tr>
+<tr><td>candidate</td><td>0</td><td>0</td><td>0</td><td>n/a</td><td>yes</td></tr>
+</tbody></table>
+<h2>Node Metrics</h2>
+<table><thead><tr><th>Run</th><th>Avg CPU %</th><th>Peak CPU %</th><th>Avg Memory</th><th>Peak Memory</th><th>Start Peers</th><th>End Peers</th><th>Min Peers</th></tr></thead><tbody>
+<tr><td>current</td><td>13.1593</td><td>33.5300</td><td>64.67 MiB</td><td>66.28 MiB</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>candidate</td><td>14.0232</td><td>32.1700</td><td>43.06 MiB</td><td>45.08 MiB</td><td>2</td><td>2</td><td>2</td></tr>
+</tbody></table>
+</body></html>

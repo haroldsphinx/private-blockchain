@@ -1,0 +1,850 @@
+{
+  "current": {
+    "metadata": {
+      "environment_label": "current",
+      "git_sha": "8d5eeec672cb37d8ca01b0f475a7d496d7b81283",
+      "target_rpc_url": "http://52.44.40.113:8545",
+      "target_node_label": "node-3",
+      "cl_beacon_url": "http://54.175.18.52:5052",
+      "benchmark_duration_seconds": 30,
+      "request_rates": [
+        25,
+        100,
+        250
+      ],
+      "test_names": [
+        "eth_blockNumber",
+        "eth_getBlockByNumber",
+        "eth_call"
+      ],
+      "el_client_version": "Geth/v1.16.7-stable-b9f3a3d9/linux-amd64/go1.24.9",
+      "cl_client_version": "Lighthouse/v8.1.0-edba56b/x86_64-linux",
+      "ssh_host": "52.44.40.113"
+    },
+    "liveness": {
+      "rpc_url": "http://52.44.40.113:8545",
+      "poll_interval_seconds": 5,
+      "stall_threshold_seconds": 60,
+      "samples": 55,
+      "starting_block": 0,
+      "ending_block": 0,
+      "block_delta": 0,
+      "average_seconds_per_observed_block": null,
+      "longest_stall_seconds": 270.7277355194092,
+      "stall_detected": true
+    },
+    "benchmarks": {
+      "eth_blockNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.02792667783094,
+            "mean": 0.006849096,
+            "p50": 0.006702534,
+            "p95": 0.007476562,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.01166995171882,
+            "mean": 0.006790737,
+            "p50": 0.006909428,
+            "p95": 0.00738172,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.97766151287706,
+            "mean": 0.006652362,
+            "p50": 0.006627131,
+            "p95": 0.007180121,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      },
+      "eth_call": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.027245372589096,
+            "mean": 0.006679015,
+            "p50": 0.006535854,
+            "p95": 0.00735956,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.01075022888331,
+            "mean": 0.0069149,
+            "p50": 0.006848846,
+            "p95": 0.007533414,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.972088699844,
+            "mean": 0.007012057,
+            "p50": 0.006879607,
+            "p95": 0.007790166,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      },
+      "eth_getBlockByNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.027513672632583,
+            "mean": 0.006869331,
+            "p50": 0.006801378,
+            "p95": 0.007215687,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.01001349593395,
+            "mean": 0.007011066,
+            "p50": 0.006926665,
+            "p95": 0.007502804,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.97832332134325,
+            "mean": 0.006632775,
+            "p50": 0.006484342,
+            "p95": 0.007313319,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      }
+    },
+    "node_metrics": {
+      "ssh_host": "52.44.40.113",
+      "samples": 41,
+      "failed_samples": 0,
+      "avg_cpu_percent": 13.15926829268293,
+      "peak_cpu_percent": 33.53,
+      "avg_mem_used_bytes": 67808536.58536585,
+      "peak_mem_used_bytes": 69500000.0,
+      "start_peer_count": 0,
+      "end_peer_count": 0,
+      "min_peer_count": 0,
+      "max_peer_count": 0
+    }
+  },
+  "candidate": {
+    "metadata": {
+      "environment_label": "candidate",
+      "git_sha": "a6e848196b97e012647f5307a1d7be99c980eeb8",
+      "target_rpc_url": "http://52.44.40.113:8545",
+      "target_node_label": "node-3",
+      "cl_beacon_url": "http://54.175.18.52:5052",
+      "benchmark_duration_seconds": 30,
+      "request_rates": [
+        25,
+        100,
+        250
+      ],
+      "test_names": [
+        "eth_blockNumber",
+        "eth_getBlockByNumber",
+        "eth_call"
+      ],
+      "el_client_version": "Geth/v1.16.8-stable-abeb78c6/linux-amd64/go1.24.11",
+      "cl_client_version": "Lighthouse/v8.1.0-edba56b/x86_64-linux",
+      "ssh_host": "52.44.40.113"
+    },
+    "liveness": {
+      "rpc_url": "http://52.44.40.113:8545",
+      "poll_interval_seconds": 5,
+      "stall_threshold_seconds": 60,
+      "samples": 55,
+      "starting_block": 0,
+      "ending_block": 0,
+      "block_delta": 0,
+      "average_seconds_per_observed_block": null,
+      "longest_stall_seconds": 270.3304297924042,
+      "stall_detected": true
+    },
+    "benchmarks": {
+      "eth_blockNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.03078684740056,
+            "mean": 0.002824469,
+            "p50": 0.002654396,
+            "p95": 0.003639263,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.0213755581684,
+            "mean": 0.00335169,
+            "p50": 0.003229916,
+            "p95": 0.003872814,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 250.01049887422027,
+            "mean": 0.00249816,
+            "p50": 0.002461541,
+            "p95": 0.003022901,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      },
+      "eth_call": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.03018671054119,
+            "mean": 0.004012696,
+            "p50": 0.003868373,
+            "p95": 0.004792978,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.02533432999049,
+            "mean": 0.002735374,
+            "p50": 0.00258393,
+            "p95": 0.003439622,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 250.0102842897157,
+            "mean": 0.002914026,
+            "p50": 0.002713618,
+            "p95": 0.003938547,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      },
+      "eth_getBlockByNumber": {
+        "rows": [
+          {
+            "rate": 25,
+            "target_duration": 30,
+            "requests": 750,
+            "throughput": 25.03013965302735,
+            "mean": 0.003849319,
+            "p50": 0.003750528,
+            "p95": 0.004318918,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 750
+            }
+          },
+          {
+            "rate": 100,
+            "target_duration": 30,
+            "requests": 3000,
+            "throughput": 100.02018557375158,
+            "mean": 0.003356699,
+            "p50": 0.003189074,
+            "p95": 0.004010724,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 3000
+            }
+          },
+          {
+            "rate": 250,
+            "target_duration": 30,
+            "requests": 7500,
+            "throughput": 249.99847474263905,
+            "mean": 0.003088015,
+            "p50": 0.003082788,
+            "p95": 0.003822721,
+            "success": 1.0,
+            "error_rate": 0.0,
+            "errors": [],
+            "status_codes": {
+              "200": 7500
+            }
+          }
+        ]
+      }
+    },
+    "node_metrics": {
+      "ssh_host": "52.44.40.113",
+      "samples": 41,
+      "failed_samples": 0,
+      "avg_cpu_percent": 14.023170731707317,
+      "peak_cpu_percent": 32.17,
+      "avg_mem_used_bytes": 45148536.585365854,
+      "peak_mem_used_bytes": 47270000.0,
+      "start_peer_count": 2,
+      "end_peer_count": 2,
+      "min_peer_count": 2,
+      "max_peer_count": 2
+    }
+  },
+  "comparison": {
+    "rows": [
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "mean",
+        "current": 0.006849096,
+        "candidate": 0.002824469,
+        "delta": -0.004024626999999999,
+        "relative_delta_percent": -58.76143362569307,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "p50",
+        "current": 0.006702534,
+        "candidate": 0.002654396,
+        "delta": -0.004048138,
+        "relative_delta_percent": -60.39712741479566,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "p95",
+        "current": 0.007476562,
+        "candidate": 0.003639263,
+        "delta": -0.003837299,
+        "relative_delta_percent": -51.32437877195428,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "throughput",
+        "current": 25.02792667783094,
+        "candidate": 25.03078684740056,
+        "delta": 0.0028601695696188756,
+        "relative_delta_percent": 0.011427912533211695,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 25,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "mean",
+        "current": 0.006790737,
+        "candidate": 0.00335169,
+        "delta": -0.0034390469999999998,
+        "relative_delta_percent": -50.64320706279746,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "p50",
+        "current": 0.006909428,
+        "candidate": 0.003229916,
+        "delta": -0.0036795119999999994,
+        "relative_delta_percent": -53.25349652677471,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "p95",
+        "current": 0.00738172,
+        "candidate": 0.003872814,
+        "delta": -0.0035089059999999996,
+        "relative_delta_percent": -47.53507312658838,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "throughput",
+        "current": 100.01166995171882,
+        "candidate": 100.0213755581684,
+        "delta": 0.009705606449585957,
+        "relative_delta_percent": 0.009704473942162341,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 100,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "mean",
+        "current": 0.006652362,
+        "candidate": 0.00249816,
+        "delta": -0.004154202,
+        "relative_delta_percent": -62.44702257634206,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "p50",
+        "current": 0.006627131,
+        "candidate": 0.002461541,
+        "delta": -0.00416559,
+        "relative_delta_percent": -62.85661170723803,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "p95",
+        "current": 0.007180121,
+        "candidate": 0.003022901,
+        "delta": -0.00415722,
+        "relative_delta_percent": -57.89902426435432,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "throughput",
+        "current": 249.97766151287706,
+        "candidate": 250.01049887422027,
+        "delta": 0.032837361343212024,
+        "relative_delta_percent": 0.013136118301322887,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_blockNumber",
+        "rate": 250,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 25,
+        "metric": "mean",
+        "current": 0.006679015,
+        "candidate": 0.004012696,
+        "delta": -0.0026663190000000003,
+        "relative_delta_percent": -39.920841621107314,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 25,
+        "metric": "p50",
+        "current": 0.006535854,
+        "candidate": 0.003868373,
+        "delta": -0.0026674809999999998,
+        "relative_delta_percent": -40.81304447743172,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 25,
+        "metric": "p95",
+        "current": 0.00735956,
+        "candidate": 0.004792978,
+        "delta": -0.0025665820000000004,
+        "relative_delta_percent": -34.87412290952177,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 25,
+        "metric": "throughput",
+        "current": 25.027245372589096,
+        "candidate": 25.03018671054119,
+        "delta": 0.0029413379520946137,
+        "relative_delta_percent": 0.011752543711087327,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 25,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 100,
+        "metric": "mean",
+        "current": 0.0069149,
+        "candidate": 0.002735374,
+        "delta": -0.004179525999999999,
+        "relative_delta_percent": -60.442320207089026,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 100,
+        "metric": "p50",
+        "current": 0.006848846,
+        "candidate": 0.00258393,
+        "delta": -0.004264916,
+        "relative_delta_percent": -62.27203823826672,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 100,
+        "metric": "p95",
+        "current": 0.007533414,
+        "candidate": 0.003439622,
+        "delta": -0.004093792000000001,
+        "relative_delta_percent": -54.34178979145445,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 100,
+        "metric": "throughput",
+        "current": 100.01075022888331,
+        "candidate": 100.02533432999049,
+        "delta": 0.014584101107175229,
+        "relative_delta_percent": 0.014582533451452212,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 100,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 250,
+        "metric": "mean",
+        "current": 0.007012057,
+        "candidate": 0.002914026,
+        "delta": -0.004098031,
+        "relative_delta_percent": -58.44263673270197,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 250,
+        "metric": "p50",
+        "current": 0.006879607,
+        "candidate": 0.002713618,
+        "delta": -0.004165989,
+        "relative_delta_percent": -60.55562476170514,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 250,
+        "metric": "p95",
+        "current": 0.007790166,
+        "candidate": 0.003938547,
+        "delta": -0.0038516190000000006,
+        "relative_delta_percent": -49.44206580450276,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 250,
+        "metric": "throughput",
+        "current": 249.972088699844,
+        "candidate": 250.0102842897157,
+        "delta": 0.03819558987171945,
+        "relative_delta_percent": 0.015279941880864593,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_call",
+        "rate": 250,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "mean",
+        "current": 0.006869331,
+        "candidate": 0.003849319,
+        "delta": -0.0030200120000000003,
+        "relative_delta_percent": -43.96369893953283,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "p50",
+        "current": 0.006801378,
+        "candidate": 0.003750528,
+        "delta": -0.0030508500000000003,
+        "relative_delta_percent": -44.856351168836675,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "p95",
+        "current": 0.007215687,
+        "candidate": 0.004318918,
+        "delta": -0.0028967690000000004,
+        "relative_delta_percent": -40.14543590929042,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "throughput",
+        "current": 25.027513672632583,
+        "candidate": 25.03013965302735,
+        "delta": 0.002625980394768135,
+        "relative_delta_percent": 0.010492374229085435,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 25,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "mean",
+        "current": 0.007011066,
+        "candidate": 0.003356699,
+        "delta": -0.003654367,
+        "relative_delta_percent": -52.122844086762264,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "p50",
+        "current": 0.006926665,
+        "candidate": 0.003189074,
+        "delta": -0.003737591,
+        "relative_delta_percent": -53.959459566761204,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "p95",
+        "current": 0.007502804,
+        "candidate": 0.004010724,
+        "delta": -0.00349208,
+        "relative_delta_percent": -46.54366554157618,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "throughput",
+        "current": 100.01001349593395,
+        "candidate": 100.02018557375158,
+        "delta": 0.010172077817628633,
+        "relative_delta_percent": 0.01017105933901528,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 100,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "mean",
+        "current": 0.006632775,
+        "candidate": 0.003088015,
+        "delta": -0.0035447599999999997,
+        "relative_delta_percent": -53.443091315475044,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "p50",
+        "current": 0.006484342,
+        "candidate": 0.003082788,
+        "delta": -0.0034015539999999998,
+        "relative_delta_percent": -52.45796720777528,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "p95",
+        "current": 0.007313319,
+        "candidate": 0.003822721,
+        "delta": -0.0034905980000000006,
+        "relative_delta_percent": -47.729327819557724,
+        "verdict": "improved"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "throughput",
+        "current": 249.97832332134325,
+        "candidate": 249.99847474263905,
+        "delta": 0.02015142129579317,
+        "relative_delta_percent": 0.008061267484336564,
+        "verdict": "unchanged"
+      },
+      {
+        "test_name": "eth_getBlockByNumber",
+        "rate": 250,
+        "metric": "error_rate",
+        "current": 0.0,
+        "candidate": 0.0,
+        "delta": 0.0,
+        "relative_delta_percent": null,
+        "verdict": "unchanged"
+      }
+    ]
+  }
+}
