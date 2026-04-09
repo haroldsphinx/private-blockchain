@@ -48,6 +48,7 @@ LIVENESS_JSON="$RUN_DIR/liveness.json"
 LIVENESS_CSV="$RUN_DIR/liveness_samples.csv"
 NODE_METRICS_JSON="$RUN_DIR/node_metrics.json"
 NODE_METRICS_CSV="$RUN_DIR/node_metrics_samples.csv"
+NODE_METRICS_ERRORS="$RUN_DIR/node_metrics_errors.log"
 
 log() {
   printf '[benchmark] %s\n' "$*"
@@ -112,7 +113,8 @@ if [[ -n "$SSH_HOST" ]]; then
     --ssh-bin "$SSH_BIN" \
     --poll-interval "$POLL_INTERVAL" \
     --output-json "$NODE_METRICS_JSON" \
-    --output-csv "$NODE_METRICS_CSV" &
+    --output-csv "$NODE_METRICS_CSV" \
+    --error-log "$NODE_METRICS_ERRORS" &
   NODE_MONITOR_PID=$!
 fi
 
