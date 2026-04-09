@@ -83,30 +83,12 @@ jobs:
             --run "${{ steps.baseline_run.outputs.dir }}" \
             --output-dir .benchmark-action
 
-      - name: Download Existing Benchmark History
-        id: history_download
-        continue-on-error: true
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          workflow: benchmark.yml
-          branch: main
-          name: benchmark-history
-          path: .benchmark-history
-          if_no_artifact_found: warn
-
-      - name: Initialize Benchmark History Files
-        run: |
-          mkdir -p .benchmark-history
-          [ -f .benchmark-history/smaller.json ] || printf '[]\n' > .benchmark-history/smaller.json
-          [ -f .benchmark-history/bigger.json ] || printf '[]\n' > .benchmark-history/bigger.json
-
       - name: Publish Smaller-Is-Better Baseline Summary
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: RPC Benchmark Baseline
           tool: customSmallerIsBetter
           output-file-path: .benchmark-action/github-action-benchmark-smaller.json
-          external-data-json-path: .benchmark-history/smaller.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           summary-always: true
           benchmark-data-dir-path: dev/bench/smaller
@@ -119,7 +101,6 @@ jobs:
           name: RPC Benchmark Baseline
           tool: customBiggerIsBetter
           output-file-path: .benchmark-action/github-action-benchmark-bigger.json
-          external-data-json-path: .benchmark-history/bigger.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           summary-always: true
           benchmark-data-dir-path: dev/bench/bigger
@@ -133,12 +114,6 @@ jobs:
           path: |
             results/current
             reports/baseline-*
-
-      - name: Upload Benchmark History Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-history
-          path: .benchmark-history
 
   compare:
     if: github.event_name == 'workflow_dispatch'
@@ -216,37 +191,6 @@ jobs:
           python3 scripts/report/export_github_action_benchmark.py \
             --run "${{ steps.candidate_run.outputs.dir }}" \
             --output-dir .benchmark-action
-
-      - name: Download Benchmark History
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          workflow: benchmark.yml
-          branch: main
-          name: benchmark-history
-          path: .benchmark-history
-          if_no_artifact_found: fail
-
-      - name: Publish Smaller-Is-Better Comparison Summary
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          name: RPC Benchmark Comparison
-          tool: customSmallerIsBetter
-          output-file-path: .benchmark-action/github-action-benchmark-smaller.json
-          external-data-json-path: .benchmark-history/smaller.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          summary-always: true
-          save-data-file: false
-
-      - name: Publish Bigger-Is-Better Comparison Summary
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          name: RPC Benchmark Comparison
-          tool: customBiggerIsBetter
-          output-file-path: .benchmark-action/github-action-benchmark-bigger.json
-          external-data-json-path: .benchmark-history/bigger.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          summary-always: true
-          save-data-file: false
 
       - name: Append Full Comparison Report To Job Summary
         run: |
