@@ -89,7 +89,7 @@ jobs:
           name: RPC Benchmark Baseline
           tool: customSmallerIsBetter
           output-file-path: .benchmark-action/github-action-benchmark-smaller.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.BENCHMARK_PAGES_TOKEN }}
           summary-always: true
           benchmark-data-dir-path: dev/bench/smaller
           auto-push: true
@@ -101,7 +101,7 @@ jobs:
           name: RPC Benchmark Baseline
           tool: customBiggerIsBetter
           output-file-path: .benchmark-action/github-action-benchmark-bigger.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.BENCHMARK_PAGES_TOKEN }}
           summary-always: true
           benchmark-data-dir-path: dev/bench/bigger
           auto-push: true
